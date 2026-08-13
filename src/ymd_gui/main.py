@@ -1,14 +1,18 @@
 import sys
 
-from PySide6.QtWidgets import QApplication, QLabel
+from PySide6.QtWidgets import QApplication
+
+from gui.main_window import MainWindow
 
 
 def main():
     app = QApplication(sys.argv)
 
-    label = QLabel("Yandex Music Downloader GUI")
-    label.resize(400, 120)
-    label.show()
+    app.setOrganizationName("YMD GUI")
+    app.setApplicationName("Yandex Music Downloader GUI")
+
+    window = MainWindow()
+    window.show()
 
     sys.exit(app.exec())
 
