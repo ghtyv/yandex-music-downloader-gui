@@ -16,8 +16,355 @@
   <property name="windowTitle">
    <string>Yandex Music Downloader</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <property name="styleSheet">
+   <string notr="true">/* ========================================
+   ОСНОВА
+   ======================================== */
+
+QWidget {
+    color: #F2F2F2;
+}
+
+QLabel {
+    color: #EDEDED;
+    background: transparent;
+}
+
+
+/* Заголовок */
+
+QLabel#labelTitle {
+    color: #FFFFFF;
+    background: transparent;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+
+/* ========================================
+   ПОЛЯ
+   ======================================== */
+
+QLineEdit,
+QComboBox,
+QPlainTextEdit {
+    color: #F4F4F4;
+
+    background-color: rgba(28, 28, 28, 225);
+
+    border: 1px solid rgba(255, 255, 255, 22);
+    border-radius: 10px;
+
+    padding: 7px 10px;
+
+    selection-background-color: #FFCC00;
+    selection-color: #111111;
+}
+
+
+QLineEdit:hover,
+QComboBox:hover,
+QPlainTextEdit:hover {
+    background-color: rgba(35, 35, 35, 235);
+
+    border: 1px solid rgba(255, 255, 255, 50);
+}
+
+
+QLineEdit:focus,
+QComboBox:focus {
+    background-color: rgba(38, 38, 38, 245);
+
+    border: 1px solid #FFCC00;
+}
+
+
+/* Placeholder */
+
+QLineEdit {
+    color: #F3F3F3;
+}
+
+
+/* ========================================
+   COMBO BOX
+   ======================================== */
+
+QComboBox {
+    padding-right: 30px;
+}
+
+
+QComboBox::drop-down {
+    border: none;
+    width: 28px;
+}
+
+
+QComboBox::down-arrow {
+    width: 8px;
+    height: 8px;
+}
+
+
+QComboBox QAbstractItemView {
+    color: #F2F2F2;
+
+    background-color: #1B1B1B;
+
+    border: 1px solid #343434;
+    border-radius: 9px;
+
+    selection-background-color: #FFCC00;
+    selection-color: #111111;
+
+    padding: 5px;
+}
+
+
+/* ========================================
+   ОБЫЧНЫЕ КНОПКИ
+   ======================================== */
+
+QPushButton {
+    color: #F2F2F2;
+
+    background-color: rgba(42, 42, 42, 235);
+
+    border: 1px solid rgba(255, 255, 255, 28);
+    border-radius: 10px;
+
+    padding: 8px 16px;
+
+    font-weight: 500;
+}
+
+
+QPushButton:hover {
+    background-color: #353535;
+
+    border: 1px solid rgba(255, 255, 255, 65);
+}
+
+
+QPushButton:pressed {
+    background-color: #222222;
+
+    border: 1px solid rgba(255, 204, 0, 130);
+}
+
+
+QPushButton:disabled {
+    color: #777777;
+
+    background-color: rgba(30, 30, 30, 180);
+
+    border: 1px solid rgba(255, 255, 255, 15);
+}
+
+
+/* ========================================
+   ОСНОВНЫЕ ЖЁЛТЫЕ КНОПКИ
+   ======================================== */
+
+QPushButton#pushButtonDownload,
+QPushButton#pushButtonAuthorization {
+    color: #111111;
+
+    background-color: #FFCC00;
+
+    border: none;
+    border-radius: 11px;
+
+    padding: 9px 22px;
+
+    font-weight: 700;
+}
+
+
+QPushButton#pushButtonDownload:hover,
+QPushButton#pushButtonAuthorization:hover {
+    background-color: #FFDA33;
+}
+
+
+QPushButton#pushButtonDownload:pressed,
+QPushButton#pushButtonAuthorization:pressed {
+    background-color: #E7B900;
+}
+
+
+QPushButton#pushButtonDownload:disabled,
+QPushButton#pushButtonAuthorization:disabled {
+    color: #6A6040;
+
+    background-color: #847124;
+}
+
+
+/* ========================================
+   PROGRESS BAR
+   ======================================== */
+
+QProgressBar {
+    color: #EEEEEE;
+
+    background-color: rgba(32, 32, 32, 230);
+
+    border: 1px solid rgba(255, 255, 255, 22);
+    border-radius: 9px;
+
+    text-align: center;
+
+    min-height: 20px;
+
+    font-weight: 600;
+}
+
+
+QProgressBar::chunk {
+    border-radius: 8px;
+
+    background: qlineargradient(
+        x1: 0,
+        y1: 0,
+        x2: 1,
+        y2: 0,
+        stop: 0 #F0B900,
+        stop: 0.55 #FFCC00,
+        stop: 1 #FFE052
+    );
+}
+
+
+/* ========================================
+   ЖУРНАЛ
+   ======================================== */
+
+QPlainTextEdit#plainTextEditLog {
+    color: #EAEAEA;
+
+    background-color: rgba(18, 18, 18, 225);
+
+    border: 1px solid rgba(255, 255, 255, 25);
+    border-radius: 12px;
+
+    padding: 9px;
+
+    selection-background-color: #FFCC00;
+    selection-color: #111111;
+}
+
+
+QPlainTextEdit#plainTextEditLog:hover {
+    background-color: rgba(22, 22, 22, 235);
+
+    border: 1px solid rgba(255, 255, 255, 40);
+}
+
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+QScrollBar:vertical {
+    background: transparent;
+
+    width: 10px;
+
+    margin: 4px 2px;
+}
+
+
+QScrollBar::handle:vertical {
+    background-color: #454545;
+
+    min-height: 30px;
+
+    border-radius: 5px;
+}
+
+
+QScrollBar::handle:vertical:hover {
+    background-color: #666666;
+}
+
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+
+/* ========================================
+   TOOLTIP
+   ======================================== */
+
+QToolTip {
+    color: #F2F2F2;
+
+    background-color: #242424;
+
+    border: 1px solid #444444;
+    border-radius: 6px;
+
+    padding: 6px;
+}
+
+QLabel#labelURL,
+QLabel#labelFolder,
+QLabel#labelQuality,
+QLabel#labelAuthorization,
+QLabel#labelLog {
+    color: #CFCFCF;
+    font-weight: 500;
+}
+
+QMessageBox {
+    background-color: #1B1B1B;
+}
+
+QMessageBox QLabel {
+    color: #F2F2F2;
+    background: transparent;
+}
+
+QMessageBox QPushButton {
+    color: #111111;
+    background-color: #FFCC00;
+    border: none;
+    border-radius: 10px;
+    padding: 7px 18px;
+    min-width: 70px;
+    font-weight: 700;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #FFDA33;
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: #E7B900;
+}</string>
+  </property>
+  <widget class="AnimatedBackground" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>8</number>
+    </property>
+    <property name="leftMargin">
+     <number>18</number>
+    </property>
+    <property name="topMargin">
+     <number>16</number>
+    </property>
+    <property name="rightMargin">
+     <number>18</number>
+    </property>
+    <property name="bottomMargin">
+     <number>16</number>
+    </property>
     <item>
      <widget class="QLabel" name="labelTitle">
       <property name="sizePolicy">
@@ -29,7 +376,7 @@
       <property name="font">
        <font>
         <family>Raleway</family>
-        <pointsize>24</pointsize>
+        <pointsize>-1</pointsize>
         <italic>false</italic>
         <bold>true</bold>
         <underline>false</underline>
@@ -76,6 +423,7 @@
       <property name="font">
        <font>
         <pointsize>16</pointsize>
+        <fontweight>Medium</fontweight>
        </font>
       </property>
       <property name="text">
@@ -90,6 +438,12 @@
         <pointsize>16</pointsize>
        </font>
       </property>
+      <property name="placeholderText">
+       <string>Ссылка на трек, альбом или плейлист</string>
+      </property>
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item>
@@ -103,6 +457,7 @@
       <property name="font">
        <font>
         <pointsize>16</pointsize>
+        <fontweight>Medium</fontweight>
        </font>
       </property>
       <property name="text">
@@ -121,6 +476,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayoutFolder">
+         <property name="spacing">
+          <number>8</number>
+         </property>
          <item>
           <widget class="QLineEdit" name="lineEditFolder">
            <property name="sizePolicy">
@@ -133,6 +491,12 @@
             <font>
              <pointsize>16</pointsize>
             </font>
+           </property>
+           <property name="placeholderText">
+            <string>Выберите папку для сохранения</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -147,7 +511,11 @@
            <property name="font">
             <font>
              <pointsize>16</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="text">
             <string>Выбрать...</string>
@@ -164,6 +532,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayoutQuality">
+         <property name="spacing">
+          <number>8</number>
+         </property>
          <item>
           <widget class="QLabel" name="labelQuality">
            <property name="minimumSize">
@@ -175,6 +546,7 @@
            <property name="font">
             <font>
              <pointsize>16</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -256,6 +628,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayoutAuthorization">
+         <property name="spacing">
+          <number>8</number>
+         </property>
          <item>
           <widget class="QLabel" name="labelAuthorization">
            <property name="minimumSize">
@@ -267,6 +642,7 @@
            <property name="font">
             <font>
              <pointsize>16</pointsize>
+             <fontweight>Medium</fontweight>
             </font>
            </property>
            <property name="text">
@@ -285,7 +661,11 @@
            <property name="font">
             <font>
              <pointsize>16</pointsize>
+             <bold>true</bold>
             </font>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="text">
             <string>Получить токен</string>
@@ -315,6 +695,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayoutDownload">
+         <property name="spacing">
+          <number>8</number>
+         </property>
          <item>
           <spacer name="horizontalSpacerDownload">
            <property name="orientation">
@@ -342,7 +725,11 @@
            <property name="font">
             <font>
              <pointsize>16</pointsize>
+             <bold>true</bold>
             </font>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
            </property>
            <property name="text">
             <string>Скачать</string>
@@ -375,7 +762,7 @@
       <property name="font">
        <font>
         <pointsize>16</pointsize>
-        <bold>false</bold>
+        <fontweight>DemiBold</fontweight>
        </font>
       </property>
       <property name="value">
@@ -388,6 +775,7 @@
       <property name="font">
        <font>
         <pointsize>16</pointsize>
+        <fontweight>Medium</fontweight>
        </font>
       </property>
       <property name="text">
@@ -425,6 +813,14 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AnimatedBackground</class>
+   <extends>QWidget</extends>
+   <header>ymd_gui.gui.widgets.animated_background</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
