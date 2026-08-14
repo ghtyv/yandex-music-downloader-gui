@@ -283,31 +283,28 @@ class MainWindow(QMainWindow):
         )
 
     def download_failed(
-            self,
-            error,
-            traceback_text,
+        self,
+        error: str,
     ):
-        self.ui.progressBarDownload.setRange(0, 1)
+        self.ui.progressBarDownload.setRange(
+            0,
+            1,
+        )
         self.ui.progressBarDownload.setValue(0)
         self.ui.progressBarDownload.setFormat(
             "Ошибка"
         )
 
-        self.ui.plainTextEditLog.appendPlainText(
-            ""
-        )
-        self.ui.plainTextEditLog.appendPlainText(
-            f"Критическая ошибка: {error}"
+        self.statusBar().showMessage(
+            "Ошибка загрузки"
         )
 
         self.ui.plainTextEditLog.appendPlainText(
             ""
         )
+
         self.ui.plainTextEditLog.appendPlainText(
-            "Техническая информация:"
-        )
-        self.ui.plainTextEditLog.appendPlainText(
-            traceback_text
+            f"Ошибка: {error}"
         )
 
         QMessageBox.critical(
@@ -451,6 +448,8 @@ class MainWindow(QMainWindow):
             embed_cover=embed_cover,
             cover_resolution=cover_resolution,
             path_pattern=Path(pattern),
+
+            debug=False
         )
 
         self.ui.plainTextEditLog.appendPlainText(

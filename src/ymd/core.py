@@ -8,6 +8,7 @@ import re
 import subprocess
 import time
 import typing
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import IntEnum, auto
@@ -50,6 +51,8 @@ from ymd.api import (
     get_download_info,
 )
 from ymd.mime_utils import MimeType, guess_mime_type
+
+logger = logging.getLogger(__name__)
 
 # Константы
 UNSAFE_PATH_CLEAR_RE = re.compile(r"[/\\]+")
@@ -609,28 +612,39 @@ def _process_file_hook(tmp_path: Path, target_path: Path, download_info: CustomD
     if container == Container.MP4 and codec == Codec.FLAC and quality.is_lossless and target_path.suffix == ".flac":
         need_conversion = True
         convert_to = "flac"
-        print(f"  Обнаружен FLAC в MP4 контейнере, конвертируем в настоящий FLAC...")
+        logger.debug(
+            "FLAC in MP4 container; converting to FLAC"
+        )
     
     # Случай 2: FLAC в MP4 -> MP3 (для битрейтов 192, 256, 320)
     elif container == Container.MP4 and codec == Codec.FLAC and quality.is_mp3_bitrate:
         need_conversion = True
         convert_to = "mp3"
         mp3_bitrate = quality.bitrate
-        print(f"  Обнаружен FLAC в MP4 контейнере, конвертируем в MP3 {mp3_bitrate}kbps...")
+        logger.debug(
+            "FLAC in MP4 container; converting to MP3 %s kbps",
+            mp3_bitrate
+        )
     
     # Случай 3: AAC в MP4 -> MP3 (для битрейтов 192, 256, 320 или FLAC)
     elif container == Container.MP4 and codec == Codec.AAC and quality.is_mp3_bitrate:
         need_conversion = True
         convert_to = "mp3"
         mp3_bitrate = quality.bitrate
-        print(f"  Конвертируем AAC в MP3 {mp3_bitrate}kbps...")
+        logger.debug(
+            "Converting AAC to MP3 %s kbps",
+            mp3_bitrate
+        )
     
     # Случай 4: FLAC в MP4 -> MP3 (для качества 2 если target_path .mp3)
     elif container == Container.MP4 and codec == Codec.FLAC and target_path.suffix == ".mp3":
         need_conversion = True
         convert_to = "mp3"
         mp3_bitrate = quality.bitrate
-        print(f"  FLAC в MP4 контейнере, конвертируем в MP3 {mp3_bitrate}kbps...")
+        logger.debug(
+            "FLAC in MP4 container; converting to MP3 %s kbps",
+            mp3_bitrate
+        )
     
     # Случай 5: AAC в MP4 -> MP3 при force_mp3 (для качества 0 и 1)
     elif container == Container.MP4 and codec == Codec.AAC and force_mp3 and quality.is_aac_quality:
@@ -640,7 +654,10 @@ def _process_file_hook(tmp_path: Path, target_path: Path, download_info: CustomD
             mp3_bitrate = 64
         else:  # quality.value == 1
             mp3_bitrate = 192
-        print(f"  Принудительная конвертация AAC в MP3 {mp3_bitrate}kbps...")
+        logger.debug(
+            "Forced conversion of AAC to MP3 %s kbps",
+            mp3_bitrate
+        )
     
     # Случай 6: MP3 контейнер -> если запрошен FLAC или MP3 с другим битрейтом, просто сохраняем
     # В этом случае конвертация не нужна, файл уже MP3
@@ -690,7 +707,9 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
             )
             output_tmp.replace(tmp_path)
             container = Container.FLAC
-            print(f"  ✔ Успешно сконвертирован в FLAC")
+            logger.debug(
+                "Successfully converted to FLAC"
+            )
             
         elif convert_to == "mp3" and mp3_bitrate:
             output_tmp = tmp_path.with_suffix(".mp3")
@@ -714,12 +733,20 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
             container = Container.MP3
             final_path = target_path.with_suffix('.mp3')
             target_path = final_path
-            print(f"  ✔ Успешно сконвертирован в MP3 ({mp3_bitrate}kbps)")
+            logger.debug(
+                "Successfully converted to MP3 (%s kbps)",
+                mp3_bitrate
+            )
             
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as e:
         error_msg = f"Ошибка ffmpeg: {e}" if isinstance(e, subprocess.CalledProcessError) else "ffmpeg не найден"
-        print(f"  ⚠️ {error_msg}")
-        print(f"  Сохраняем в исходном формате")
+        logger.debug(
+            "  ⚠️ %s",
+            error_msg
+        )
+        logger.debug(
+            "Save in the original format"
+        )
         if target_path.suffix == ".flac":
             final_path = target_path.with_suffix('.m4a')
             target_path = final_path
@@ -774,16 +801,19 @@ def to_downloadable_track(
     quality = CoreTrackQuality(quality_value)
     
     debug_print(debug, f"to_downloadable_track: base_path={base_path}, quality={quality.value}, force_mp3={force_mp3}")
-    
-    # Разделитель между треками
-    print("\n" + "─" * 60)
+
     
     download_info = get_download_info(track, quality.api_quality)
     container = download_info.file_format.container
     codec = download_info.file_format.codec
     bitrate = download_info.bitrate
-    
-    print(f"  API вернул: контейнер={container.name}, кодек={codec.name.lower()}, заявленный битрейт={bitrate}")
+
+    logger.debug(
+        "API response: container=%s, codec=%s, bitrate=%s",
+        container.value,
+        codec.value,
+        bitrate,
+    )
 
     # Определяем расширение файла и качество для конвертации
     if quality.is_mp3_bitrate:
@@ -792,20 +822,31 @@ def to_downloadable_track(
             # FLAC -> MP3 с запрошенным битрейтом
             target_bitrate = quality.bitrate
             suffix = ".mp3"
-            print(f"  FLAC будет сконвертирован в MP3 {target_bitrate}kbps")
+            logger.debug(
+                "FLAC will be converted to MP3 %s kbps",
+                target_bitrate
+            )
         elif codec == Codec.AAC:
             # AAC -> MP3 с минимальным из {запрошенный, исходный}
             target_bitrate = _get_target_bitrate(quality.bitrate, bitrate)
             quality = CoreTrackQuality(target_bitrate)
             suffix = ".mp3"
-            print(f"  AAC будет сконвертирован в MP3 {target_bitrate}kbps")
+            logger.debug(
+                "AAC will be converted to MP3 %s kbps",
+                target_bitrate
+            )
         elif codec == Codec.MP3:
             # Уже MP3, сохраняем как есть
             suffix = ".mp3"
             if bitrate > 0:
-                print(f"  Сохраняем MP3 как есть (заявленный API: {bitrate}kbps)")
+                logger.debug(
+                    "   Save the MP3 as-is (specified by API: %s kbps)",
+                    bitrate
+                )
             else:
-                print(f"  Сохраняем MP3 как есть")
+                logger.debug(
+                    "   Save the MP3 as-is"
+                )
         else:
             suffix = ".mp3"
             
@@ -818,14 +859,22 @@ def to_downloadable_track(
             target_bitrate = _get_target_bitrate(None, bitrate, default=256)
             quality = CoreTrackQuality(target_bitrate)
             suffix = ".mp3"
-            print(f"  FLAC недоступен, AAC будет сконвертирован в MP3 {target_bitrate}kbps")
+            logger.debug(
+                "FLAC is not available, AAC will be converted to MP3 %s kbps",
+                target_bitrate
+            )
         elif codec == Codec.MP3:
             # FLAC недоступен, сохраняем MP3 как есть
             suffix = ".mp3"
             if bitrate > 0:
-                print(f"  FLAC недоступен, сохраняем MP3 как есть (заявленный API: {bitrate}kbps)")
+                logger.debug(
+                    "FLAC is not available, save the MP3 as-is (specified by API: %s kbps)",
+                    bitrate
+                )
             else:
-                print(f"  FLAC недоступен, сохраняем MP3 как есть")
+                logger.debug(
+                    "FLAC is not available, save the MP3 as-is"
+                )
         else:
             suffix = ".flac"
     else:
@@ -835,12 +884,21 @@ def to_downloadable_track(
             target_bitrate = 64 if quality.value == 0 else 192
             quality = CoreTrackQuality(target_bitrate)
             suffix = ".mp3"
-            print(f"  Принудительная конвертация AAC в MP3 {target_bitrate}kbps")
+            logger.debug(
+                "   Forced Conversion of AAC to MP3 %s kbps",
+                target_bitrate
+            )
         else:
             suffix = ".m4a"
-            print(f"  Сохраняем как M4A (AAC {bitrate}kbps)")
-    
-    print(f"  Будет сохранен с расширением: {suffix}")
+            logger.debug(
+                "   Save as M4A (AAC %s kbps)",
+                bitrate
+            )
+
+    logger.debug(
+        "Output extension: %s",
+        suffix,
+    )
 
     target_path = str(base_path) + suffix
     debug_print(debug, f"to_downloadable_track: target_path={target_path}")

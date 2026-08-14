@@ -3,13 +3,18 @@ from __future__ import annotations
 import itertools
 import re
 import time
+import logging
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 from urllib.parse import urlparse
 
 from yandex_music import Album, Client, Track
-from yandex_music.exceptions import UnauthorizedError
+from yandex_music.exceptions import (
+    NetworkError,
+    UnauthorizedError,
+)
 
 from ymd import core as ymd_core
 from ymd.cli import get_playlist_info_from_uuid
@@ -19,6 +24,8 @@ LogCallback = Callable[[str], None]
 ProgressCallback = Callable[[int, int], None]
 StatusCallback = Callable[[str], None]
 CancelCallback = Callable[[], bool]
+
+logger = logging.getLogger(__name__)
 
 
 TRACK_RE = re.compile(r"track/(\d+)")
@@ -418,14 +425,15 @@ class Downloader:
                     )
                 )
 
-                self.status(
-                    f"Проверка {number}/{stats.total}"
-                )
-
                 if (
                     config.skip_existing
                     and self._already_exists(base_path)
                 ):
+                    self.status(
+                        f"Пропуск {number}/{stats.total}: "
+                        f"{artists} — {title}"
+                    )
+
                     stats.skipped += 1
 
                     self.log(
@@ -484,21 +492,69 @@ class Downloader:
                     f"{downloadable.path.name}"
                 )
 
-            except UnauthorizedError:
-                self.log(
-                    f"{prefix} OAuth-токен больше не действителен."
-                )
-
-                raise
-
             except DownloadCancelled:
                 raise
+
+            except UnauthorizedError:
+                logger.warning(
+                    "OAuth token rejected while processing track"
+                )
+                raise
+
+            except NetworkError:
+                stats.errors += 1
+
+                logger.exception(
+                    "Network error for track: %s - %s",
+                    artists,
+                    title,
+                )
+
+                self.log(
+                    f"{prefix} Ошибка сети: "
+                    f"{artists} - {title}"
+                )
+
+            except subprocess.TimeoutExpired:
+                stats.errors += 1
+
+                logger.exception(
+                    "FFmpeg timeout for track: %s - %s",
+                    artists,
+                    title,
+                )
+
+                self.log(
+                    f"{prefix} FFmpeg не успел обработать трек: "
+                    f"{artists} - {title}"
+                )
+
+            except PermissionError:
+                stats.errors += 1
+
+                logger.exception(
+                    "Permission error for track: %s - %s",
+                    artists,
+                    title,
+                )
+
+                self.log(
+                    f"{prefix} Нет доступа к файлу: "
+                    f"{artists} - {title}"
+                )
 
             except Exception as error:
                 stats.errors += 1
 
+                logger.exception(
+                    "Track processing failed: %s - %s",
+                    artists,
+                    title,
+                )
+
                 self.log(
-                    f"{prefix} Ошибка: {error}"
+                    f"{prefix} Ошибка: "
+                    f"{artists} - {title}: {error}"
                 )
 
             self.progress(

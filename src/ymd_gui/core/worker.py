@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import traceback
+import logging
 
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 
@@ -11,6 +11,8 @@ from ymd_gui.core.downloader import (
 )
 
 from yandex_music.exceptions import UnauthorizedError
+
+logger = logging.getLogger(__name__)
 
 
 class DownloadWorker(QObject):
@@ -40,25 +42,42 @@ class DownloadWorker(QObject):
                 progress_callback=self.progress.emit,
                 status_callback=self.status.emit,
                 cancel_callback=lambda: (
-                    QThread.currentThread().isInterruptionRequested()
+                    QThread.currentThread()
+                    .isInterruptionRequested()
                 ),
             )
 
-            stats = downloader.download(self.config)
+            stats = downloader.download(
+                self.config
+            )
 
         except DownloadCancelled:
+            logger.info(
+                "Download cancelled by user"
+            )
+
             self.cancelled.emit()
             return
 
         except UnauthorizedError:
+            logger.warning(
+                "OAuth token rejected during download"
+            )
+
             self.auth_required.emit()
             return
 
-        except Exception as error:
-            self.failed.emit(
-                str(error),
-                traceback.format_exc(),
+        except Exception:
+            # Полный traceback автоматически идёт
+            # только в debug.log.
+            logger.exception(
+                "Unhandled download worker error"
             )
+
+            self.failed.emit(
+                "Не удалось завершить загрузку."
+            )
+
             return
 
         self.finished.emit(stats)
