@@ -9,6 +9,7 @@ from typing import Callable
 from urllib.parse import urlparse
 
 from yandex_music import Album, Client, Track
+from yandex_music.exceptions import UnauthorizedError
 
 from ymd import core as ymd_core
 from ymd.cli import get_playlist_info_from_uuid
@@ -456,6 +457,13 @@ class Downloader:
                     f"{prefix} Готово: "
                     f"{downloadable.path.name}"
                 )
+
+            except UnauthorizedError:
+                self.log(
+                    f"{prefix} OAuth-токен больше не действителен."
+                )
+
+                raise
 
             except Exception as error:
                 stats.errors += 1

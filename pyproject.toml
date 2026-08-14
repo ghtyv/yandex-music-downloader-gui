@@ -15,6 +15,7 @@ dependencies = [
     "StrEnum",
     "pycryptodome",
     "requests>=2.31.0",
+    "keyring>=25",
 ]
 
 [project.scripts]

@@ -346,6 +346,23 @@ QMessageBox QPushButton:hover {
 
 QMessageBox QPushButton:pressed {
     background-color: #E7B900;
+}
+
+QProgressBar#oauthProgressBar {
+    min-height: 4px;
+    max-height: 4px;
+
+    background: transparent;
+
+    border: none;
+    border-radius: 0px;
+
+    color: transparent;
+}
+
+QProgressBar#oauthProgressBar::chunk {
+    background: #FFCC00;
+    border-radius: 0px;
 }</string>
   </property>
   <widget class="AnimatedBackground" name="centralwidget">

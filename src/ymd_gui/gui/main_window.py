@@ -1,11 +1,25 @@
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, QUrl
+from keyring.errors import KeyringError
+
+from PySide6.QtCore import QSettings, QThread, QTimer,  QUrl
 from PySide6.QtWidgets import (
     QFileDialog,
     QMainWindow,
     QMessageBox,
+    QDialog,
 )
+
+from ymd_gui.core.downloader import DownloadConfig
+from ymd_gui.core.worker import DownloadWorker
+
+from ymd_gui.core.token_store import (
+    delete_token,
+    load_token,
+    save_token,
+)
+
+from ymd_gui.gui.oauth_dialog import OAuthDialog
 
 from .generated.ui_main_window import Ui_MainWindow
 
@@ -17,6 +31,11 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.download_thread = None
+        self.download_worker = None
+
+        self.restart_after_auth = False
+
         self.settings = QSettings()
 
         self.setup_quality()
@@ -24,6 +43,12 @@ class MainWindow(QMainWindow):
 
         # Выбор папки
         self.ui.pushButtonFolder.clicked.connect(self.select_folder)
+
+        self.ui.pushButtonAuthorization.clicked.connect(
+            self.open_oauth
+        )
+
+        self.update_auth_state()
 
         # Ручное изменение пути
         self.ui.lineEditFolder.editingFinished.connect(
@@ -173,7 +198,153 @@ class MainWindow(QMainWindow):
 
         return True, ""
 
+    def append_download_log(self, message):
+        self.ui.plainTextEditLog.appendPlainText(
+            message
+        )
+
+    def update_download_progress(
+            self,
+            current,
+            total,
+    ):
+        if total <= 0:
+            return
+
+        progress_bar = self.ui.progressBarDownload
+
+        progress_bar.setRange(0, total)
+        progress_bar.setValue(current)
+        progress_bar.setFormat(
+            "%v / %m (%p%)"
+        )
+
+    def download_finished(self, stats):
+        progress_bar = self.ui.progressBarDownload
+
+        if stats.total > 0:
+            progress_bar.setRange(
+                0,
+                stats.total,
+            )
+            progress_bar.setValue(
+                stats.total,
+            )
+            progress_bar.setFormat(
+                "%v / %m — готово"
+            )
+        else:
+            progress_bar.setRange(0, 1)
+            progress_bar.setValue(1)
+            progress_bar.setFormat(
+                "Готово"
+            )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            ""
+        )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            "=== Завершено ==="
+        )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            f"Скачано: {stats.downloaded}"
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            f"Пропущено: {stats.skipped}"
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            f"Недоступно: {stats.unavailable}"
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            f"Ошибок: {stats.errors}"
+        )
+
+    def download_failed(
+            self,
+            error,
+            traceback_text,
+    ):
+        self.ui.progressBarDownload.setRange(0, 1)
+        self.ui.progressBarDownload.setValue(0)
+        self.ui.progressBarDownload.setFormat(
+            "Ошибка"
+        )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            ""
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            f"Критическая ошибка: {error}"
+        )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            ""
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            "Техническая информация:"
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            traceback_text
+        )
+
+        QMessageBox.critical(
+            self,
+            "Ошибка загрузки",
+            error,
+        )
+
+    def download_thread_finished(self):
+        self.set_download_running(False)
+
+        self.download_worker = None
+        self.download_thread = None
+
+        if self.restart_after_auth:
+            QTimer.singleShot(
+                0,
+                self.open_oauth,
+            )
+
+    def set_download_running(self, running):
+        self.ui.lineEditURL.setEnabled(
+            not running
+        )
+        self.ui.lineEditFolder.setEnabled(
+            not running
+        )
+        self.ui.pushButtonFolder.setEnabled(
+            not running
+        )
+        self.ui.comboBoxQuality.setEnabled(
+            not running
+        )
+        self.ui.pushButtonAuthorization.setEnabled(
+            not running
+        )
+
+        self.ui.pushButtonDownload.setEnabled(
+            not running
+        )
+
+        if running:
+            self.ui.pushButtonDownload.setText(
+                "Скачивание..."
+            )
+        else:
+            self.ui.pushButtonDownload.setText(
+                "Скачать"
+            )
+
     def start_download(self):
+        # Защита от двойного запуска
+        if (
+                self.download_thread is not None
+                and self.download_thread.isRunning()
+        ):
+            return
+
         valid, error = self.validate_inputs()
 
         if not valid:
@@ -184,28 +355,253 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(
                 self,
                 "Некорректные параметры",
-                error
+                error,
             )
 
             return
 
-        url = self.ui.lineEditURL.text().strip()
-        folder = self.ui.lineEditFolder.text().strip()
-        quality_name = self.ui.comboBoxQuality.currentText()
+        token = self.get_auth_token()
+
+        if not token:
+            return
+
         quality = self.ui.comboBoxQuality.currentData()
 
+        if quality is None:
+            QMessageBox.warning(
+                self,
+                "Ошибка",
+                "Не выбрано качество загрузки.",
+            )
+            return
+
+        config = DownloadConfig(
+            token=token,
+            url=self.ui.lineEditURL.text().strip(),
+            output_dir=Path(
+                self.ui.lineEditFolder.text().strip()
+            ),
+            quality=int(quality),
+
+            # Наши разумные значения по умолчанию
+            skip_existing=True,
+            embed_cover=True,
+            cover_resolution=400,
+        )
+
         self.ui.plainTextEditLog.appendPlainText(
-            "Параметры проверены."
+            ""
         )
         self.ui.plainTextEditLog.appendPlainText(
-            f"Ссылка: {url}"
+            "=== Новая загрузка ==="
         )
         self.ui.plainTextEditLog.appendPlainText(
-            f"Папка: {folder}"
+            f"Ссылка: {config.url}"
         )
         self.ui.plainTextEditLog.appendPlainText(
-            f"Качество: {quality_name} ({quality})"
+            f"Папка: {config.output_dir}"
         )
         self.ui.plainTextEditLog.appendPlainText(
-            "Загрузчик пока не подключён."
+            f"Качество: "
+            f"{self.ui.comboBoxQuality.currentText()}"
         )
+
+        # Пока список треков ещё неизвестен —
+        # progress bar работает в неопределённом режиме.
+        self.ui.progressBarDownload.setRange(0, 0)
+        self.ui.progressBarDownload.setFormat(
+            "Подготовка..."
+        )
+
+        self.set_download_running(True)
+
+        thread = QThread(self)
+        worker = DownloadWorker(config)
+
+        worker.moveToThread(thread)
+
+        self.download_thread = thread
+        self.download_worker = worker
+
+        # Запуск backend после старта потока
+        thread.started.connect(worker.run)
+
+        # Worker -> GUI
+        worker.log.connect(self.append_download_log)
+        worker.progress.connect(
+            self.update_download_progress
+        )
+        worker.finished.connect(
+            self.download_finished
+        )
+        worker.failed.connect(
+            self.download_failed
+        )
+        worker.auth_required.connect(
+            self.download_auth_required
+        )
+
+        # Завершаем QThread после завершения worker
+        worker.finished.connect(thread.quit)
+        worker.failed.connect(thread.quit)
+        worker.auth_required.connect(thread.quit)
+
+        # Корректное уничтожение объектов
+        thread.finished.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(
+            self.download_thread_finished
+        )
+
+        thread.start()
+
+    def closeEvent(self, event):
+        if (
+                self.download_thread is not None
+                and self.download_thread.isRunning()
+        ):
+            QMessageBox.information(
+                self,
+                "Загрузка выполняется",
+                "Дождитесь окончания загрузки "
+                "перед закрытием программы.",
+            )
+
+            event.ignore()
+            return
+
+        super().closeEvent(event)
+
+    def open_oauth(self):
+        dialog = OAuthDialog(self)
+
+        dialog.token_received.connect(
+            self.oauth_token_received
+        )
+
+        result = dialog.exec()
+
+        if (
+                result != QDialog.DialogCode.Accepted
+                and self.restart_after_auth
+        ):
+            self.restart_after_auth = False
+
+            self.ui.plainTextEditLog.appendPlainText(
+                "Повторная авторизация отменена."
+            )
+
+    def oauth_token_received(self, token: str):
+        try:
+            save_token(token)
+
+        except (KeyringError, ValueError) as error:
+            QMessageBox.critical(
+                self,
+                "Ошибка сохранения токена",
+                (
+                    "Авторизация прошла успешно, "
+                    "но сохранить токен не удалось.\n\n"
+                    f"{error}"
+                ),
+            )
+
+            self.ui.plainTextEditLog.appendPlainText(
+                "Ошибка: не удалось сохранить OAuth-токен."
+            )
+
+            return
+
+        self.update_auth_state()
+
+        self.ui.plainTextEditLog.appendPlainText(
+            "Авторизация Яндекс выполнена."
+        )
+
+        should_restart = self.restart_after_auth
+        self.restart_after_auth = False
+
+        if should_restart:
+            self.ui.plainTextEditLog.appendPlainText(
+                "Возобновление загрузки..."
+            )
+
+            QTimer.singleShot(
+                0,
+                self.start_download,
+            )
+        else:
+            QMessageBox.information(
+                self,
+                "Авторизация",
+                "Токен Яндекс Музыки успешно получен.",
+            )
+
+    def update_auth_state(self):
+        try:
+            token = load_token()
+        except KeyringError:
+            token = None
+
+        if token:
+            self.ui.pushButtonAuthorization.setText(
+                "Обновить токен"
+            )
+
+            self.ui.pushButtonAuthorization.setToolTip(
+                "OAuth-токен сохранён. "
+                "Нажмите для повторной авторизации."
+            )
+
+        else:
+            self.ui.pushButtonAuthorization.setText(
+                "Получить токен"
+            )
+
+            self.ui.pushButtonAuthorization.setToolTip(
+                "Авторизоваться через Яндекс OAuth"
+            )
+
+    def get_auth_token(self) -> str | None:
+        try:
+            token = load_token()
+        except KeyringError as error:
+            QMessageBox.critical(
+                self,
+                "Ошибка хранилища",
+                (
+                    "Не удалось прочитать сохранённый "
+                    "OAuth-токен.\n\n"
+                    f"{error}"
+                ),
+            )
+            return None
+
+        if token:
+            return token
+
+        QMessageBox.warning(
+            self,
+            "Требуется авторизация",
+            (
+                "Сначала получите OAuth-токен "
+                "через кнопку «Получить токен»."
+            ),
+        )
+
+        return None
+
+    def download_auth_required(self):
+        self.ui.plainTextEditLog.appendPlainText("")
+        self.ui.plainTextEditLog.appendPlainText(
+            "OAuth-токен больше не действителен."
+        )
+        self.ui.plainTextEditLog.appendPlainText(
+            "Требуется повторная авторизация..."
+        )
+
+        delete_token()
+
+        self.update_auth_state()
+
+        self.restart_after_auth = True
