@@ -1,5 +1,8 @@
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+)
 
 from .generated.ui_settings_dialog import Ui_SettingsDialog
 
@@ -13,6 +16,17 @@ class SettingsDialog(QDialog):
 
         self.ui = Ui_SettingsDialog()
         self.ui.setupUi(self)
+
+        ok_button = self.ui.buttonBox.button(
+            QDialogButtonBox.StandardButton.Ok
+        )
+
+        cancel_button = self.ui.buttonBox.button(
+            QDialogButtonBox.StandardButton.Cancel
+        )
+
+        ok_button.setText("Сохранить")
+        cancel_button.setText("Отмена")
 
         self.settings = QSettings()
 

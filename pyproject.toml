@@ -24,3 +24,8 @@ ymd-gui = "ymd_gui.main:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["ymd*", "ymd_gui*"]
+
+[tool.setuptools.package-data]
+ymd_gui = [
+    "resources/ffmpeg/windows/*.exe",
+]

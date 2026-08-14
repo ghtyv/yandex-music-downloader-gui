@@ -480,17 +480,41 @@ def download_track(
     client = typing.cast(Client, track.client)
     assert client
 
-    debug_print(debug, f"download_track: target_path={target_path}, quality={quality.value}")
+    debug_print(
+        debug,
+        f"download_track: target_path={target_path}, quality={quality.value}",
+    )
 
-    # Получаем текст песни
-    text_lyrics = _get_lyrics(track, lyrics_format, target_path, debug)
-    
-    # Получаем обложку
-    cover = _get_album_cover(track, cover_resolution, embed_cover, covers_cache, target_path, debug)
+    debug_print(debug, "Получение текста песни...")
+    text_lyrics = _get_lyrics(
+        track,
+        lyrics_format,
+        target_path,
+        debug,
+    )
+    debug_print(debug, "Текст песни обработан")
 
-    # Скачиваем трек
+    debug_print(debug, "Загрузка обложки...")
+    cover = _get_album_cover(
+        track,
+        cover_resolution,
+        embed_cover,
+        covers_cache,
+        target_path,
+        debug,
+    )
+    debug_print(debug, "Обложка обработана")
+
+    debug_print(debug, "Получение аудиоданных...")
     download_info = track_info.download_info
-    track_data = api.download_track(client, download_info)
+    track_data = api.download_track(
+        client,
+        download_info,
+    )
+    debug_print(
+        debug,
+        f"Аудиоданные получены: {len(track_data)} bytes",
+    )
 
     # Обрабатываем файл
     def process_hook(tmp_path: Path) -> Path:
@@ -499,12 +523,22 @@ def download_track(
             track, text_lyrics, cover, compatibility_level, debug, force_mp3
         )
 
+    debug_print(
+        debug,
+        "Запись и обработка файла..."
+    )
+
     # Сохраняем файл
     write_via_temporary_file(
         track_data,
         target_path,
         temporary_file_hook=process_hook,
         debug=debug,
+    )
+
+    debug_print(
+        debug,
+        "Файл обработан и сохранён"
     )
 
 
@@ -634,16 +668,26 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
                   container: Container, mp3_bitrate: Optional[int], debug: bool) -> tuple[Path, Container, Path]:
     """Конвертирует файл с помощью ffmpeg."""
     try:
-        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
+        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True, timeout=10)
         debug_print(debug, f"ffmpeg найден, запускаем конвертацию")
         
         if convert_to == "flac":
             output_tmp = tmp_path.with_suffix(".flac")
             debug_print(debug, f"Конвертация FLAC: {tmp_path} -> {output_tmp}")
             subprocess.run([
-                "ffmpeg", "-y", "-i", str(tmp_path),
-                "-vn", "-c:a", "copy", "-map_metadata", "-1", str(output_tmp)
-            ], check=True, capture_output=True)
+                "ffmpeg",
+                "-nostdin",
+                "-y",
+                "-i", str(tmp_path),
+                "-vn",
+                "-c:a", "copy",
+                "-map_metadata", "-1",
+                str(output_tmp),
+            ],
+                check=True,
+                capture_output=True,
+                timeout=180,
+            )
             output_tmp.replace(tmp_path)
             container = Container.FLAC
             print(f"  ✔ Успешно сконвертирован в FLAC")
@@ -652,17 +696,27 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
             output_tmp = tmp_path.with_suffix(".mp3")
             debug_print(debug, f"Конвертация MP3: {tmp_path} -> {output_tmp}, битрейт={mp3_bitrate}")
             subprocess.run([
-                "ffmpeg", "-y", "-i", str(tmp_path),
-                "-vn", "-c:a", "libmp3lame", "-b:a", f"{mp3_bitrate}k", 
-                "-map_metadata", "-1", str(output_tmp)
-            ], check=True, capture_output=True)
+                "ffmpeg",
+                "-nostdin",
+                "-y",
+                "-i", str(tmp_path),
+                "-vn",
+                "-c:a", "libmp3lame",
+                "-b:a", f"{mp3_bitrate}k",
+                "-map_metadata", "-1",
+                str(output_tmp),
+            ],
+                check=True,
+                capture_output=True,
+                timeout=180,
+            )
             output_tmp.replace(tmp_path)
             container = Container.MP3
             final_path = target_path.with_suffix('.mp3')
             target_path = final_path
             print(f"  ✔ Успешно сконвертирован в MP3 ({mp3_bitrate}kbps)")
             
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as e:
         error_msg = f"Ошибка ffmpeg: {e}" if isinstance(e, subprocess.CalledProcessError) else "ffmpeg не найден"
         print(f"  ⚠️ {error_msg}")
         print(f"  Сохраняем в исходном формате")
@@ -836,7 +890,7 @@ def write_via_temporary_file(
 
     if temporary_file.exists():
         debug_print(debug, f"write_via_temporary_file: переименовываем {temporary_file} -> {final_file}")
-        temporary_file.rename(final_file)
+        temporary_file.replace(final_file)
 
     debug_print(debug, f"write_via_temporary_file: результат={final_file}")
     return final_file

@@ -1,0 +1,83 @@
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.11.1
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x01 \
+<\
+svg xmlns=\x22http:\
+//www.w3.org/200\
+0/svg\x22\x0d\x0a     wid\
+th=\x2210\x22\x0d\x0a     he\
+ight=\x226\x22\x0d\x0a     v\
+iewBox=\x220 0 10 6\
+\x22>\x0d\x0a    <path\x0d\x0a \
+       d=\x22M1 1 L\
+5 5 L9 1\x22\x0d\x0a     \
+   fill=\x22none\x22\x0d\x0a\
+        stroke=\x22\
+#EDEDED\x22\x0d\x0a      \
+  stroke-width=\x22\
+1.6\x22\x0d\x0a        st\
+roke-linecap=\x22ro\
+und\x22\x0d\x0a        st\
+roke-linejoin=\x22r\
+ound\x22/>\x0d\x0a</svg>\
+\x00\x00\x01 \
+<\
+svg xmlns=\x22http:\
+//www.w3.org/200\
+0/svg\x22\x0d\x0a     wid\
+th=\x2210\x22\x0d\x0a     he\
+ight=\x226\x22\x0d\x0a     v\
+iewBox=\x220 0 10 6\
+\x22>\x0d\x0a    <path\x0d\x0a \
+       d=\x22M1 5 L\
+5 1 L9 5\x22\x0d\x0a     \
+   fill=\x22none\x22\x0d\x0a\
+        stroke=\x22\
+#EDEDED\x22\x0d\x0a      \
+  stroke-width=\x22\
+1.6\x22\x0d\x0a        st\
+roke-linecap=\x22ro\
+und\x22\x0d\x0a        st\
+roke-linejoin=\x22r\
+ound\x22/>\x0d\x0a</svg>\
+"
+
+qt_resource_name = b"\
+\x00\x05\
+\x00o\xa6S\
+\x00i\
+\x00c\x00o\x00n\x00s\
+\x00\x0d\
+\x02A\xd0G\
+\x00s\
+\x00p\x00i\x00n\x00_\x00d\x00o\x00w\x00n\x00.\x00s\x00v\x00g\
+\x00\x0b\
+\x067\xbaG\
+\x00s\
+\x00p\x00i\x00n\x00_\x00u\x00p\x00.\x00s\x00v\x00g\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x10\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\xa0\x01&I\x88\
+\x00\x00\x000\x00\x00\x00\x00\x00\x01\x00\x00\x01$\
+\x00\x00\x01\xa0\x01%\xfe\x00\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()

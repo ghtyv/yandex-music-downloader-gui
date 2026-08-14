@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(723, 887)
+        MainWindow.resize(715, 887)
         MainWindow.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         MainWindow.setStyleSheet(u"/* ========================================\n"
 "   \u041e\u0421\u041d\u041e\u0412\u0410\n"
@@ -104,19 +104,38 @@ class Ui_MainWindow(object):
 "   ======================================== */\n"
 "\n"
 "QComboBox {\n"
-"    padding-right: 30px;\n"
+"    padding-right: 32px;\n"
 "}\n"
-"\n"
 "\n"
 "QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"\n"
+"    width: 30px;\n"
+"\n"
+"    background: transparent;\n"
+"\n"
 "    border: none;\n"
-"    width: 28px;\n"
+"    border-left: 1px solid rgba(255, 255, 255, 25);\n"
+"\n"
+"    border-top-right-radius: 9px;\n"
+"    border-bottom-right-radius: 9px;\n"
 "}\n"
 "\n"
+"QComboBox::drop-down:hover {\n"
+"    background-color: rgba(255, 255, 255, 20);\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow {\n"
-"    width: 8px;\n"
-"    height: 8px;\n"
+""
+                        "    image: url(:/icons/spin_down.svg);\n"
+"\n"
+"    width: 10px;\n"
+"    height: 6px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow:on {\n"
+"    top: 1px;\n"
 "}\n"
 "\n"
 "\n"
@@ -134,8 +153,7 @@ class Ui_MainWindow(object):
 "    padding: 5px;\n"
 "}\n"
 "\n"
-""
-                        "\n"
+"\n"
 "/* ========================================\n"
 "   \u041e\u0411\u042b\u0427\u041d\u042b\u0415 \u041a\u041d\u041e\u041f\u041a\u0418\n"
 "   ======================================== */\n"
@@ -158,7 +176,8 @@ class Ui_MainWindow(object):
 "    background-color: #353535;\n"
 "\n"
 "    border: 1px solid rgba(255, 255, 255, 65);\n"
-"}\n"
+""
+                        "}\n"
 "\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -178,8 +197,7 @@ class Ui_MainWindow(object):
 "\n"
 "\n"
 "/* ========================================\n"
-"   \u041e\u0421\u041d\u041e\u0412\u041d\u042b\u0415 \u0416\u0401\u041b\u0422\u042b"
-                        "\u0415 \u041a\u041d\u041e\u041f\u041a\u0418\n"
+"   \u041e\u0421\u041d\u041e\u0412\u041d\u042b\u0415 \u0416\u0401\u041b\u0422\u042b\u0415 \u041a\u041d\u041e\u041f\u041a\u0418\n"
 "   ======================================== */\n"
 "\n"
 "QPushButton#pushButtonDownload,\n"
@@ -204,7 +222,8 @@ class Ui_MainWindow(object):
 "\n"
 "\n"
 "QPushButton#pushButtonDownload:pressed,\n"
-"QPushButton#pushButtonAuthorization:pressed {\n"
+"QPus"
+                        "hButton#pushButtonAuthorization:pressed {\n"
 "    background-color: #E7B900;\n"
 "}\n"
 "\n"
@@ -224,8 +243,7 @@ class Ui_MainWindow(object):
 "QProgressBar {\n"
 "    color: #EEEEEE;\n"
 "\n"
-"    backgr"
-                        "ound-color: rgba(32, 32, 32, 230);\n"
+"    background-color: rgba(32, 32, 32, 230);\n"
 "\n"
 "    border: 1px solid rgba(255, 255, 255, 22);\n"
 "    border-radius: 9px;\n"
@@ -254,7 +272,8 @@ class Ui_MainWindow(object):
 "\n"
 "\n"
 "/* ========================================\n"
-"   \u0416\u0423\u0420\u041d\u0410\u041b\n"
+""
+                        "   \u0416\u0423\u0420\u041d\u0410\u041b\n"
 "   ======================================== */\n"
 "\n"
 "QPlainTextEdit#plainTextEditLog {\n"
@@ -272,8 +291,7 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "\n"
-"QPlainTextEdit#plainTextEdi"
-                        "tLog:hover {\n"
+"QPlainTextEdit#plainTextEditLog:hover {\n"
 "    background-color: rgba(22, 22, 22, 235);\n"
 "\n"
 "    border: 1px solid rgba(255, 255, 255, 40);\n"
@@ -302,7 +320,8 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "\n"
-"QScrollBar::handle:vertical:hover {\n"
+"QScrollBar::handle:vertical:hov"
+                        "er {\n"
 "    background-color: #666666;\n"
 "}\n"
 "\n"
@@ -325,8 +344,7 @@ class Ui_MainWindow(object):
 "    border: 1px solid #444444;\n"
 "    border-radius: 6px;\n"
 "\n"
-"    padding: 6px"
-                        ";\n"
+"    padding: 6px;\n"
 "}\n"
 "\n"
 "QLabel#labelURL,\n"
@@ -354,7 +372,8 @@ class Ui_MainWindow(object):
 "    border-radius: 10px;\n"
 "    padding: 7px 18px;\n"
 "    min-width: 70px;\n"
-"    font-weight: 700;\n"
+"    font-weight: 700"
+                        ";\n"
 "}\n"
 "\n"
 "QMessageBox QPushButton:hover {\n"
@@ -378,9 +397,45 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QProgressBar#oauthProgressBar::chunk {\n"
-"    ba"
-                        "ckground: #FFCC00;\n"
+"    background: #FFCC00;\n"
 "    border-radius: 0px;\n"
+"}\n"
+"\n"
+"QPushButton#pushButtonCancel {\n"
+"    color: #EDEDED;\n"
+"\n"
+"    background-color: #2A2A2A;\n"
+"\n"
+"    border: 1px solid #444444;\n"
+"    border-radius: 10px;\n"
+"\n"
+"    padding: 9px 18px;\n"
+"\n"
+"    font-weight: 600;\n"
+"}\n"
+"\n"
+"\n"
+"QPushButton#pushButtonCancel:hover {\n"
+"    color: #FF9B9B;\n"
+"\n"
+"    background-color: #332525;\n"
+"\n"
+"    border: 1px solid #A64C4C;\n"
+"}\n"
+"\n"
+"\n"
+"QPushButton#pushButtonCancel:pressed {\n"
+"    background-color: #251919;\n"
+"}\n"
+"\n"
+"\n"
+"QPushB"
+                        "utton#pushButtonCancel:disabled {\n"
+"    color: #666666;\n"
+"\n"
+"    background-color: #202020;\n"
+"\n"
+"    border: 1px solid #303030;\n"
 "}")
         self.centralwidget = AnimatedBackground(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -588,7 +643,10 @@ class Ui_MainWindow(object):
         self.pushButtonCancel.setEnabled(False)
         sizePolicy2.setHeightForWidth(self.pushButtonCancel.sizePolicy().hasHeightForWidth())
         self.pushButtonCancel.setSizePolicy(sizePolicy2)
-        self.pushButtonCancel.setFont(font1)
+        font4 = QFont()
+        font4.setPointSize(16)
+        font4.setWeight(QFont.DemiBold)
+        self.pushButtonCancel.setFont(font4)
 
         self.horizontalLayoutDownload.addWidget(self.pushButtonCancel)
 
@@ -604,9 +662,6 @@ class Ui_MainWindow(object):
 
         self.progressBarDownload = QProgressBar(self.centralwidget)
         self.progressBarDownload.setObjectName(u"progressBarDownload")
-        font4 = QFont()
-        font4.setPointSize(16)
-        font4.setWeight(QFont.DemiBold)
         self.progressBarDownload.setFont(font4)
         self.progressBarDownload.setValue(0)
 
@@ -636,7 +691,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 723, 22))
+        self.menubar.setGeometry(QRect(0, 0, 715, 22))
         MainWindow.setMenuBar(self.menubar)
 
         self.retranslateUi(MainWindow)

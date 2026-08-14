@@ -400,9 +400,36 @@ class MainWindow(QMainWindow):
 
         settings = QSettings()
 
-        pattern = settings.value(
-            "download/path_pattern",
-            DEFAULT_PATTERN,
+        skip_existing = bool(
+            settings.value(
+                "download/skip_existing",
+                True,
+                type=bool,
+            )
+        )
+
+        embed_cover = bool(
+            settings.value(
+                "download/embed_cover",
+                True,
+                type=bool,
+            )
+        )
+
+        cover_resolution = int(
+            settings.value(
+                "download/cover_resolution",
+                400,
+                type=int,
+            )
+        )
+
+        pattern = str(
+            settings.value(
+                "download/path_pattern",
+                DEFAULT_PATTERN,
+                type=str,
+            )
         )
 
         config = DownloadConfig(
@@ -413,24 +440,9 @@ class MainWindow(QMainWindow):
             ),
             quality=int(quality),
 
-            skip_existing=settings.value(
-                "download/skip_existing",
-                True,
-                type=bool,
-            ),
-
-            embed_cover=settings.value(
-                "download/embed_cover",
-                True,
-                type=bool,
-            ),
-
-            cover_resolution=settings.value(
-                "download/cover_resolution",
-                400,
-                type=int,
-            ),
-
+            skip_existing=skip_existing,
+            embed_cover=embed_cover,
+            cover_resolution=cover_resolution,
             path_pattern=Path(pattern),
         )
 

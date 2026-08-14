@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>723</width>
+    <width>715</width>
     <height>887</height>
    </rect>
   </property>
@@ -92,19 +92,37 @@ QLineEdit {
    ======================================== */
 
 QComboBox {
-    padding-right: 30px;
+    padding-right: 32px;
 }
-
 
 QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+
+    width: 30px;
+
+    background: transparent;
+
     border: none;
-    width: 28px;
+    border-left: 1px solid rgba(255, 255, 255, 25);
+
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
 }
 
+QComboBox::drop-down:hover {
+    background-color: rgba(255, 255, 255, 20);
+}
 
 QComboBox::down-arrow {
-    width: 8px;
-    height: 8px;
+    image: url(:/icons/spin_down.svg);
+
+    width: 10px;
+    height: 6px;
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
 }
 
 
@@ -363,6 +381,42 @@ QProgressBar#oauthProgressBar {
 QProgressBar#oauthProgressBar::chunk {
     background: #FFCC00;
     border-radius: 0px;
+}
+
+QPushButton#pushButtonCancel {
+    color: #EDEDED;
+
+    background-color: #2A2A2A;
+
+    border: 1px solid #444444;
+    border-radius: 10px;
+
+    padding: 9px 18px;
+
+    font-weight: 600;
+}
+
+
+QPushButton#pushButtonCancel:hover {
+    color: #FF9B9B;
+
+    background-color: #332525;
+
+    border: 1px solid #A64C4C;
+}
+
+
+QPushButton#pushButtonCancel:pressed {
+    background-color: #251919;
+}
+
+
+QPushButton#pushButtonCancel:disabled {
+    color: #666666;
+
+    background-color: #202020;
+
+    border: 1px solid #303030;
 }</string>
   </property>
   <widget class="AnimatedBackground" name="centralwidget">
@@ -773,7 +827,7 @@ QProgressBar#oauthProgressBar::chunk {
            <property name="font">
             <font>
              <pointsize>16</pointsize>
-             <fontweight>Medium</fontweight>
+             <fontweight>DemiBold</fontweight>
             </font>
            </property>
            <property name="text">
@@ -852,7 +906,7 @@ QProgressBar#oauthProgressBar::chunk {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>723</width>
+     <width>715</width>
      <height>22</height>
     </rect>
    </property>

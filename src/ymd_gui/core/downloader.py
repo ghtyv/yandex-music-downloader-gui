@@ -45,8 +45,8 @@ class DownloadConfig:
     delay: int = 0
 
     timeout: int = 20
-    tries: int = 20
-    retry_delay: int = 5
+    tries: int = 2
+    retry_delay: int = 2
 
     compatibility_level: int = 1
     force_mp3: bool = False
