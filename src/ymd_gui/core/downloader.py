@@ -17,6 +17,7 @@ from ymd.cli import get_playlist_info_from_uuid
 
 LogCallback = Callable[[str], None]
 ProgressCallback = Callable[[int, int], None]
+CancelCallback = Callable[[], bool]
 
 
 TRACK_RE = re.compile(r"track/(\d+)")
@@ -60,15 +61,19 @@ class DownloadStats:
     unavailable: int = 0
     errors: int = 0
 
+class DownloadCancelled(Exception):
+    pass
 
 class Downloader:
     def __init__(
         self,
-        log_callback: LogCallback | None = None,
-        progress_callback: ProgressCallback | None = None,
+        log_callback=None,
+        progress_callback=None,
+        cancel_callback: CancelCallback | None = None,
     ):
         self.log_callback = log_callback
         self.progress_callback = progress_callback
+        self.cancel_callback = cancel_callback
 
     def log(self, message: str):
         if self.log_callback:
@@ -368,6 +373,8 @@ class Downloader:
             tracks,
             start=1,
         ):
+            self.check_cancelled()
+
             title = track.title or "Без названия"
 
             artists = self._track_artists(track)
@@ -465,6 +472,9 @@ class Downloader:
 
                 raise
 
+            except DownloadCancelled:
+                raise
+
             except Exception as error:
                 stats.errors += 1
 
@@ -476,6 +486,8 @@ class Downloader:
                 number,
                 stats.total,
             )
+
+            self.check_cancelled()
 
             if config.delay > 0:
                 time.sleep(config.delay)
@@ -489,3 +501,10 @@ class Downloader:
         )
 
         return stats
+
+    def check_cancelled(self):
+        if (
+                self.cancel_callback is not None
+                and self.cancel_callback()
+        ):
+            raise DownloadCancelled()

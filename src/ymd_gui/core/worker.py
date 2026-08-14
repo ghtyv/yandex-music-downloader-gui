@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import traceback
 
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, QThread, Signal, Slot
 
 from ymd_gui.core.downloader import (
+    DownloadCancelled,
     DownloadConfig,
     Downloader,
 )
@@ -15,6 +16,7 @@ from yandex_music.exceptions import UnauthorizedError
 class DownloadWorker(QObject):
     log = Signal(str)
     auth_required = Signal()
+    cancelled = Signal()
 
     # current, total
     progress = Signal(int, int)
@@ -35,9 +37,16 @@ class DownloadWorker(QObject):
             downloader = Downloader(
                 log_callback=self.log.emit,
                 progress_callback=self.progress.emit,
+                cancel_callback=lambda: (
+                    QThread.currentThread().isInterruptionRequested()
+                ),
             )
 
             stats = downloader.download(self.config)
+
+        except DownloadCancelled:
+            self.cancelled.emit()
+            return
 
         except UnauthorizedError:
             self.auth_required.emit()

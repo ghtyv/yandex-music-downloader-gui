@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(611, 887)
+        MainWindow.resize(723, 887)
         MainWindow.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         MainWindow.setStyleSheet(u"/* ========================================\n"
 "   \u041e\u0421\u041d\u041e\u0412\u0410\n"
@@ -514,9 +514,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayoutQuality.addWidget(self.comboBoxQuality)
 
-        self.horizontalSpacerQuality = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.pushButtonSettings = QPushButton(self.widgetQuality)
+        self.pushButtonSettings.setObjectName(u"pushButtonSettings")
+        sizePolicy4.setHeightForWidth(self.pushButtonSettings.sizePolicy().hasHeightForWidth())
+        self.pushButtonSettings.setSizePolicy(sizePolicy4)
+        self.pushButtonSettings.setFont(font1)
 
-        self.horizontalLayoutQuality.addItem(self.horizontalSpacerQuality)
+        self.horizontalLayoutQuality.addWidget(self.pushButtonSettings)
 
 
         self.horizontalLayout_7.addLayout(self.horizontalLayoutQuality)
@@ -579,6 +583,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayoutDownload.addWidget(self.pushButtonDownload)
 
+        self.pushButtonCancel = QPushButton(self.widgetDownload)
+        self.pushButtonCancel.setObjectName(u"pushButtonCancel")
+        self.pushButtonCancel.setEnabled(False)
+        sizePolicy2.setHeightForWidth(self.pushButtonCancel.sizePolicy().hasHeightForWidth())
+        self.pushButtonCancel.setSizePolicy(sizePolicy2)
+        self.pushButtonCancel.setFont(font1)
+
+        self.horizontalLayoutDownload.addWidget(self.pushButtonCancel)
+
         self.horizontalSpacerDownload_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayoutDownload.addItem(self.horizontalSpacerDownload_2)
@@ -623,7 +636,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 611, 22))
+        self.menubar.setGeometry(QRect(0, 0, 723, 22))
         MainWindow.setMenuBar(self.menubar)
 
         self.retranslateUi(MainWindow)
@@ -648,9 +661,11 @@ class Ui_MainWindow(object):
         self.comboBoxQuality.setItemText(5, QCoreApplication.translate("MainWindow", u"AAC 64 kbps", None))
 
         self.comboBoxQuality.setCurrentText(QCoreApplication.translate("MainWindow", u"\u041b\u0443\u0447\u0448\u0435\u0435 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0435 (FLAC / MP3)", None))
+        self.pushButtonSettings.setText(QCoreApplication.translate("MainWindow", u"\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438", None))
         self.labelAuthorization.setText(QCoreApplication.translate("MainWindow", u"\u0410\u0432\u0442\u043e\u0440\u0438\u0437\u0430\u0446\u0438\u044f", None))
         self.pushButtonAuthorization.setText(QCoreApplication.translate("MainWindow", u"\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0442\u043e\u043a\u0435\u043d", None))
         self.pushButtonDownload.setText(QCoreApplication.translate("MainWindow", u"\u0421\u043a\u0430\u0447\u0430\u0442\u044c", None))
+        self.pushButtonCancel.setText(QCoreApplication.translate("MainWindow", u"\u041e\u0442\u043c\u0435\u043d\u0430", None))
         self.labelLog.setText(QCoreApplication.translate("MainWindow", u"\u0416\u0443\u0440\u043d\u0430\u043b", None))
     # retranslateUi
 

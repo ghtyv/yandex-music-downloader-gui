@@ -20,6 +20,10 @@ from ymd_gui.core.token_store import (
 )
 
 from ymd_gui.gui.oauth_dialog import OAuthDialog
+from ymd_gui.gui.settings_dialog import (
+    DEFAULT_PATTERN,
+    SettingsDialog,
+)
 
 from .generated.ui_main_window import Ui_MainWindow
 
@@ -63,6 +67,16 @@ class MainWindow(QMainWindow):
         # Скачать
         self.ui.pushButtonDownload.clicked.connect(
             self.start_download
+        )
+
+        # Отмена загрузки
+        self.ui.pushButtonCancel.clicked.connect(
+            self.cancel_download
+        )
+
+        # Настройки
+        self.ui.pushButtonSettings.clicked.connect(
+            self.open_settings
         )
 
     def setup_quality(self):
@@ -337,6 +351,15 @@ class MainWindow(QMainWindow):
                 "Скачать"
             )
 
+        self.ui.pushButtonCancel.setEnabled(
+            running
+        )
+
+        if not running:
+            self.ui.pushButtonCancel.setText(
+                "Отмена"
+            )
+
     def start_download(self):
         # Защита от двойного запуска
         if (
@@ -375,6 +398,13 @@ class MainWindow(QMainWindow):
             )
             return
 
+        settings = QSettings()
+
+        pattern = settings.value(
+            "download/path_pattern",
+            DEFAULT_PATTERN,
+        )
+
         config = DownloadConfig(
             token=token,
             url=self.ui.lineEditURL.text().strip(),
@@ -383,10 +413,25 @@ class MainWindow(QMainWindow):
             ),
             quality=int(quality),
 
-            # Наши разумные значения по умолчанию
-            skip_existing=True,
-            embed_cover=True,
-            cover_resolution=400,
+            skip_existing=settings.value(
+                "download/skip_existing",
+                True,
+                type=bool,
+            ),
+
+            embed_cover=settings.value(
+                "download/embed_cover",
+                True,
+                type=bool,
+            ),
+
+            cover_resolution=settings.value(
+                "download/cover_resolution",
+                400,
+                type=int,
+            ),
+
+            path_pattern=Path(pattern),
         )
 
         self.ui.plainTextEditLog.appendPlainText(
@@ -440,11 +485,15 @@ class MainWindow(QMainWindow):
         worker.auth_required.connect(
             self.download_auth_required
         )
+        worker.cancelled.connect(
+            self.download_cancelled
+        )
 
         # Завершаем QThread после завершения worker
         worker.finished.connect(thread.quit)
         worker.failed.connect(thread.quit)
         worker.auth_required.connect(thread.quit)
+        worker.cancelled.connect(thread.quit)
 
         # Корректное уничтожение объектов
         thread.finished.connect(worker.deleteLater)
@@ -605,3 +654,33 @@ class MainWindow(QMainWindow):
         self.update_auth_state()
 
         self.restart_after_auth = True
+
+    def cancel_download(self):
+        if (
+                self.download_thread is None
+                or not self.download_thread.isRunning()
+        ):
+            return
+
+        self.ui.pushButtonCancel.setEnabled(False)
+        self.ui.pushButtonCancel.setText(
+            "Остановка..."
+        )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            "Запрошена остановка загрузки..."
+        )
+
+        self.download_thread.requestInterruption()
+
+    def download_cancelled(self):
+        self.ui.progressBarDownload.setFormat(
+            "Отменено"
+        )
+
+        self.ui.plainTextEditLog.appendPlainText(
+            "Загрузка остановлена пользователем."
+        )
+
+    def open_settings(self):
+        SettingsDialog(self).exec()

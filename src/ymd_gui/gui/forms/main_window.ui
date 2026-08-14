@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
+    <width>723</width>
     <height>887</height>
    </rect>
   </property>
@@ -623,17 +623,23 @@ QProgressBar#oauthProgressBar::chunk {
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacerQuality">
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
+          <widget class="QPushButton" name="pushButtonSettings">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
+           <property name="font">
+            <font>
+             <pointsize>16</pointsize>
+             <fontweight>Medium</fontweight>
+            </font>
            </property>
-          </spacer>
+           <property name="text">
+            <string>Настройки</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -754,6 +760,28 @@ QProgressBar#oauthProgressBar::chunk {
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButtonCancel">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>16</pointsize>
+             <fontweight>Medium</fontweight>
+            </font>
+           </property>
+           <property name="text">
+            <string>Отмена</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacerDownload_2">
            <property name="orientation">
             <enum>Qt::Orientation::Horizontal</enum>
@@ -824,7 +852,7 @@ QProgressBar#oauthProgressBar::chunk {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>611</width>
+     <width>723</width>
      <height>22</height>
     </rect>
    </property>
