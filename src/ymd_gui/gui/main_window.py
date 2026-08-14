@@ -35,6 +35,8 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.statusBar().showMessage("Готово")
+
         self.download_thread = None
         self.download_worker = None
 
@@ -275,6 +277,11 @@ class MainWindow(QMainWindow):
             f"Ошибок: {stats.errors}"
         )
 
+        self.statusBar().showMessage(
+            f"Готово — скачано: {stats.downloaded}, "
+            f"пропущено: {stats.skipped}"
+        )
+
     def download_failed(
             self,
             error,
@@ -500,6 +507,9 @@ class MainWindow(QMainWindow):
         worker.cancelled.connect(
             self.download_cancelled
         )
+        worker.status.connect(
+            self.update_download_status
+        )
 
         # Завершаем QThread после завершения worker
         worker.finished.connect(thread.quit)
@@ -660,6 +670,9 @@ class MainWindow(QMainWindow):
         self.ui.plainTextEditLog.appendPlainText(
             "Требуется повторная авторизация..."
         )
+        self.statusBar().showMessage(
+            "Требуется повторная авторизация"
+        )
 
         delete_token()
 
@@ -690,9 +703,16 @@ class MainWindow(QMainWindow):
             "Отменено"
         )
 
+        self.statusBar().showMessage(
+            "Загрузка отменена"
+        )
+
         self.ui.plainTextEditLog.appendPlainText(
             "Загрузка остановлена пользователем."
         )
 
     def open_settings(self):
         SettingsDialog(self).exec()
+
+    def update_download_status(self, message: str):
+        self.statusBar().showMessage(message)

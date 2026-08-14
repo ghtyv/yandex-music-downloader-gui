@@ -17,6 +17,7 @@ class DownloadWorker(QObject):
     log = Signal(str)
     auth_required = Signal()
     cancelled = Signal()
+    status = Signal(str)
 
     # current, total
     progress = Signal(int, int)
@@ -37,6 +38,7 @@ class DownloadWorker(QObject):
             downloader = Downloader(
                 log_callback=self.log.emit,
                 progress_callback=self.progress.emit,
+                status_callback=self.status.emit,
                 cancel_callback=lambda: (
                     QThread.currentThread().isInterruptionRequested()
                 ),

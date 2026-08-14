@@ -436,6 +436,22 @@ class Ui_MainWindow(object):
 "    background-color: #202020;\n"
 "\n"
 "    border: 1px solid #303030;\n"
+"}\n"
+"\n"
+"QStatusBar {\n"
+"    color: #AAAAAA;\n"
+"\n"
+"    background-color: rgba(10, 10, 10, 210);\n"
+"\n"
+"    border-top: 1px solid rgba(255, 255, 255, 15);\n"
+"\n"
+"    padding-left: 8px;\n"
+"\n"
+"    font-size: 12px;\n"
+"}\n"
+"\n"
+"QStatusBar::item {\n"
+"    border: none;\n"
 "}")
         self.centralwidget = AnimatedBackground(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")

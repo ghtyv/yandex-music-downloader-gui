@@ -17,6 +17,7 @@ from ymd.cli import get_playlist_info_from_uuid
 
 LogCallback = Callable[[str], None]
 ProgressCallback = Callable[[int, int], None]
+StatusCallback = Callable[[str], None]
 CancelCallback = Callable[[], bool]
 
 
@@ -67,12 +68,14 @@ class DownloadCancelled(Exception):
 class Downloader:
     def __init__(
         self,
-        log_callback=None,
-        progress_callback=None,
+        log_callback: LogCallback | None = None,
+        progress_callback: ProgressCallback | None = None,
+        status_callback: StatusCallback | None = None,
         cancel_callback: CancelCallback | None = None,
     ):
         self.log_callback = log_callback
         self.progress_callback = progress_callback
+        self.status_callback = status_callback
         self.cancel_callback = cancel_callback
 
     def log(self, message: str):
@@ -83,7 +86,12 @@ class Downloader:
         if self.progress_callback:
             self.progress_callback(current, total)
 
+    def status(self, message: str):
+        if self.status_callback:
+            self.status_callback(message)
+
     def create_client(self, config: DownloadConfig) -> Client:
+        self.status("Подключение к Яндекс Музыке...")
         self.log("Подключение к Яндекс Музыке...")
 
         client = ymd_core.init_client(
@@ -93,7 +101,6 @@ class Downloader:
             retry_delay=config.retry_delay,
         )
 
-        # Требуется некоторым функциям модификации.
         client.token = config.token
 
         self.log("Авторизация выполнена.")
@@ -351,6 +358,7 @@ class Downloader:
 
         client = self.create_client(config)
 
+        self.status("Получение списка треков...")
         self.log("Получение списка треков...")
 
         tracks = self.resolve_url(
@@ -363,6 +371,9 @@ class Downloader:
             total=len(tracks)
         )
 
+        self.status(
+            f"Найдено треков: {stats.total}"
+        )
         self.log(
             f"Найдено треков: {stats.total}"
         )
@@ -407,6 +418,10 @@ class Downloader:
                     )
                 )
 
+                self.status(
+                    f"Проверка {number}/{stats.total}"
+                )
+
                 if (
                     config.skip_existing
                     and self._already_exists(base_path)
@@ -440,6 +455,10 @@ class Downloader:
                     )
                 )
 
+                self.status(
+                    f"Скачивание {number}/{stats.total}: "
+                    f"{artists} — {title}"
+                )
                 self.log(
                     f"{prefix} Скачивание: "
                     f"{artists} - {title}"
@@ -492,6 +511,7 @@ class Downloader:
             if config.delay > 0:
                 time.sleep(config.delay)
 
+        self.status("Загрузка завершена")
         self.log(
             "Загрузка завершена. "
             f"Скачано: {stats.downloaded}; "
