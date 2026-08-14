@@ -10,3 +10,5 @@ dist/
 .env
 *.log
 *.egg-info/
+
+src/ymd_gui/resources/ffmpeg/windows/ffmpeg.exe
