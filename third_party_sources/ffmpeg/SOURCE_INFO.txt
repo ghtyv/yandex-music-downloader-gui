@@ -1,0 +1,47 @@
+FFmpeg source information
+=========================
+
+Binary provider:
+BtbN / FFmpeg-Builds
+
+BtbN release:
+Auto-Build 2026-08-14 13:16
+
+BtbN release tag:
+autobuild-2026-08-14-13-16
+
+BtbN FFmpeg-Builds commit:
+590a6612d7d961e9258429e501619e0b7d7cbedf
+
+Build variant:
+win64-lgpl-shared-8.1
+
+FFmpeg version:
+n8.1.2-40-g852b0552f0-20260814
+
+FFmpeg source commit:
+852b0552f0
+
+Build date:
+2026-08-14
+
+Important FFmpeg configure options:
+--enable-version3
+--enable-shared
+--disable-static
+
+The distributed build does not enable:
+--enable-gpl
+--enable-nonfree
+
+FFmpeg license for this build:
+GNU Lesser General Public License version 3.0 (LGPLv3)
+
+Exact BtbN release:
+https://github.com/BtbN/FFmpeg-Builds/releases/tag/autobuild-2026-08-14-13-16
+
+Exact FFmpeg source:
+https://github.com/FFmpeg/FFmpeg/commit/852b0552f0
+
+Exact BtbN build scripts:
+https://github.com/BtbN/FFmpeg-Builds/tree/590a661

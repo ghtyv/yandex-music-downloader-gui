@@ -1,0 +1,237 @@
+name: Build FFmpeg source bundle
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-source-bundle:
+    name: Build FFmpeg source bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout application repository
+        uses: actions/checkout@v4
+
+      - name: Checkout exact BtbN FFmpeg-Builds revision
+        uses: actions/checkout@v4
+        with:
+          repository: BtbN/FFmpeg-Builds
+          ref: 590a6612d7d961e9258429e501619e0b7d7cbedf
+          path: _ffmpeg_builds
+
+      - name: Verify Docker
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker --version
+          docker info >/dev/null
+
+      - name: Download dependency sources
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd _ffmpeg_builds
+
+          chmod +x download.sh
+
+          ./download.sh
+
+          echo
+          echo "Downloaded source archives:"
+          find .cache/downloads \
+            -type f \
+            -name '*.tar.xz' \
+            | sort
+
+          echo
+          echo "Number of downloaded source archives:"
+          find .cache/downloads \
+            -type f \
+            -name '*.tar.xz' \
+            | wc -l
+
+      - name: Download exact FFmpeg source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p _ffmpeg_core_source
+
+          curl \
+            --fail \
+            --location \
+            --retry 3 \
+            "https://github.com/FFmpeg/FFmpeg/archive/852b0552f0.tar.gz" \
+            --output "_ffmpeg_core_source/FFmpeg-852b0552f0.tar.gz"
+
+      - name: Create source bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BUNDLE_NAME="FFmpeg-BtbN-20260814-Sources"
+          BUNDLE_ROOT="$GITHUB_WORKSPACE/_source_bundle/$BUNDLE_NAME"
+
+          mkdir -p "$BUNDLE_ROOT"
+          mkdir -p "$BUNDLE_ROOT/ffmpeg-source"
+          mkdir -p "$BUNDLE_ROOT/dependency-sources"
+          mkdir -p "$BUNDLE_ROOT/build-scripts"
+          mkdir -p "$BUNDLE_ROOT/licenses"
+
+          # --------------------------------------------------
+          # Exact FFmpeg source
+          # --------------------------------------------------
+
+          cp \
+            "$GITHUB_WORKSPACE/_ffmpeg_core_source/FFmpeg-852b0552f0.tar.gz" \
+            "$BUNDLE_ROOT/ffmpeg-source/"
+
+          # --------------------------------------------------
+          # Sources downloaded by the exact BtbN build scripts
+          #
+          # Only regular files are copied. BtbN also creates
+          # convenient symlinks without hashes; those would only
+          # duplicate the same source archives.
+          # --------------------------------------------------
+
+          find \
+            "$GITHUB_WORKSPACE/_ffmpeg_builds/.cache/downloads" \
+            -type f \
+            -name '*.tar.xz' \
+            -exec cp {} "$BUNDLE_ROOT/dependency-sources/" \;
+
+          # --------------------------------------------------
+          # Exact BtbN build system
+          # --------------------------------------------------
+
+          rm -rf "$GITHUB_WORKSPACE/_ffmpeg_builds/.git"
+          rm -rf "$GITHUB_WORKSPACE/_ffmpeg_builds/.cache"
+
+          cp -a \
+            "$GITHUB_WORKSPACE/_ffmpeg_builds" \
+            "$BUNDLE_ROOT/build-scripts/FFmpeg-Builds-590a661"
+
+          # --------------------------------------------------
+          # Source / license information from our repository
+          # --------------------------------------------------
+
+          cp \
+            "$GITHUB_WORKSPACE/third_party_sources/ffmpeg/SOURCE_INFO.txt" \
+            "$BUNDLE_ROOT/SOURCE_INFO.txt"
+
+          cp \
+            "$GITHUB_WORKSPACE/packaging/windows/THIRD_PARTY_NOTICES.txt" \
+            "$BUNDLE_ROOT/THIRD_PARTY_NOTICES.txt"
+
+          cp -a \
+            "$GITHUB_WORKSPACE/packaging/windows/LICENSES/." \
+            "$BUNDLE_ROOT/licenses/"
+
+          # --------------------------------------------------
+          # Explanation
+          # --------------------------------------------------
+
+          cat > "$BUNDLE_ROOT/README-SOURCES.txt" <<'EOF'
+          FFmpeg / BtbN Source Bundle
+          ===========================
+
+          This source bundle accompanies a Yandex Music Downloader GUI
+          Windows distribution containing the following FFmpeg build:
+
+          Provider:
+          BtbN / FFmpeg-Builds
+
+          BtbN release:
+          Auto-Build 2026-08-14 13:16
+
+          BtbN build scripts revision:
+          590a6612d7d961e9258429e501619e0b7d7cbedf
+
+          Variant:
+          win64-lgpl-shared-8.1
+
+          FFmpeg version:
+          n8.1.2-40-g852b0552f0-20260814
+
+          FFmpeg source revision:
+          852b0552f0
+
+          This bundle contains:
+
+          - the exact FFmpeg source archive for commit 852b0552f0;
+          - the exact BtbN/FFmpeg-Builds build scripts;
+          - source archives downloaded by BtbN download.sh;
+          - the patches and build configuration used by BtbN;
+          - applicable license and notice files;
+          - SOURCE_INFO.txt;
+          - SHA256SUMS.txt.
+
+          dependency-sources/ intentionally contains a conservative
+          superset of dependency sources.
+
+          BtbN download.sh processes the package source definitions in
+          scripts.d. Therefore some source archives in this directory may
+          correspond to optional components which were not enabled in the
+          distributed win64-lgpl-shared-8.1 build.
+
+          They are retained deliberately so that the source bundle does not
+          accidentally omit source material referenced by the exact BtbN
+          build system revision used for this distribution.
+          EOF
+
+          # Remove indentation introduced by YAML block.
+          sed -i 's/^          //' "$BUNDLE_ROOT/README-SOURCES.txt"
+
+          # --------------------------------------------------
+          # Hash manifest
+          # --------------------------------------------------
+
+          (
+            cd "$BUNDLE_ROOT"
+
+            find . \
+              -type f \
+              ! -name 'SHA256SUMS.txt' \
+              -print0 \
+              | sort -z \
+              | xargs -0 sha256sum \
+              > SHA256SUMS.txt
+          )
+
+          echo
+          echo "Bundle contents:"
+          du -sh "$BUNDLE_ROOT"
+          find "$BUNDLE_ROOT" -maxdepth 2 -type d | sort
+
+      - name: Create source ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd "$GITHUB_WORKSPACE/_source_bundle"
+
+          # Most dependency files are already compressed .tar.xz files,
+          # therefore additional ZIP compression gives little benefit.
+          zip \
+            -0 \
+            -r \
+            "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip" \
+            "FFmpeg-BtbN-20260814-Sources"
+
+          sha256sum \
+            "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip"
+
+          ls -lh \
+            "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip"
+
+      - name: Upload source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: FFmpeg-BtbN-20260814-Sources
+          path: FFmpeg-BtbN-20260814-Sources.zip
+          compression-level: 0
+          if-no-files-found: error

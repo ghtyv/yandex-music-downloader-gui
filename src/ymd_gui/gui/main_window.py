@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
     QDialog,
 )
 
+from ymd_gui import __version__
+
 from ymd_gui.core.downloader import DownloadConfig
 from ymd_gui.core.worker import DownloadWorker
 
@@ -85,6 +87,11 @@ class MainWindow(QMainWindow):
         # Настройки
         self.ui.pushButtonSettings.clicked.connect(
             self.open_settings
+        )
+
+        # Справка "О программе"
+        self.ui.actionAbout.triggered.connect(
+            self.show_about
         )
 
     def setup_quality(self):
@@ -747,3 +754,29 @@ class MainWindow(QMainWindow):
 
     def update_download_status(self, message: str):
         self.statusBar().showMessage(message)
+
+    def show_about(self):
+        QMessageBox.about(
+            self,
+            "О программе",
+            (
+                "<h2>Yandex Music Downloader GUI</h2>"
+                f"<p>Версия {__version__}</p>"
+                "<p>"
+                "Графическое приложение для загрузки музыки "
+                "из Яндекс Музыки."
+                "</p>"
+                "<p>"
+                "Backend основан на проекте "
+                "<b>llistochek/yandex-music-downloader</b> "
+                "и дополнительных модификациях."
+                "</p>"
+                "<p>"
+                "Для обработки аудио используется FFmpeg."
+                "</p>"
+                "<p>"
+                "<b>Независимый проект, не связанный "
+                "с компанией Яндекс.</b>"
+                "</p>"
+            ),
+        )

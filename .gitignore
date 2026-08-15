@@ -11,4 +11,11 @@ dist/
 *.log
 *.egg-info/
 
+# Bundled FFmpeg binaries
 src/ymd_gui/resources/ffmpeg/windows/ffmpeg.exe
+src/ymd_gui/resources/ffmpeg/windows/*.dll
+
+# Third-party source archives
+third_party_sources/ffmpeg/*.zip
+third_party_sources/ffmpeg/*.tar.gz
+third_party_sources/ffmpeg/*.tar.xz

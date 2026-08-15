@@ -1,0 +1,96 @@
+Yandex Music Downloader GUI
+Third-Party Software Notices
+
+============================================================
+yandex-music-downloader
+============================================================
+
+Project:
+llistochek/yandex-music-downloader
+
+Parts of the downloader backend are based on and derived from
+yandex-music-downloader.
+
+License:
+MIT License
+
+The full license text is included in:
+LICENSES/yandex-music-downloader-MIT.txt
+
+
+============================================================
+FFmpeg
+============================================================
+
+This distribution contains FFmpeg, used as a separate executable
+for audio processing and conversion.
+
+Build provider:
+BtbN / FFmpeg-Builds
+
+Build variant:
+win64-lgpl-shared-8.1
+
+FFmpeg version:
+n8.1.2-40-g852b0552f0-20260814
+
+FFmpeg source commit:
+852b0552f0
+
+BtbN FFmpeg-Builds commit:
+590a661
+
+License:
+GNU Lesser General Public License version 3.0 (LGPLv3)
+
+This build uses shared FFmpeg libraries and was built with
+--enable-version3, --enable-shared and --disable-static.
+GPL-only and non-free FFmpeg build options are not enabled.
+
+The LGPLv3 license text is included in:
+LICENSES/FFmpeg-LGPL-3.0.txt
+
+The GNU GPLv3 text referenced by LGPLv3 is included in:
+LICENSES/GNU-GPL-3.0.txt
+
+Additional FFmpeg licensing information is included in:
+LICENSES/FFmpeg-LICENSE.md
+
+
+============================================================
+BtbN / FFmpeg-Builds
+============================================================
+
+The FFmpeg Windows binaries included with this distribution were
+produced using BtbN/FFmpeg-Builds.
+
+Build scripts revision:
+590a661
+
+License:
+MIT License
+
+The full license text is included in:
+LICENSES/BtbN-FFmpeg-Builds-MIT.txt
+
+
+============================================================
+Qt / PySide6
+============================================================
+
+The graphical interface is built with Qt for Python / PySide6.
+
+Qt and Qt for Python Community Edition components are distributed
+under their applicable open-source licenses, including LGPLv3
+and/or GPLv3 depending on the component.
+
+The LGPLv3 license text is included in:
+LICENSES/Qt-LGPL-3.0.txt
+
+
+============================================================
+Disclaimer
+============================================================
+
+Yandex Music Downloader GUI is an independent project and is not
+affiliated with, endorsed by, or sponsored by Yandex.

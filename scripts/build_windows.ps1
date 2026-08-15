@@ -5,7 +5,8 @@ $ProjectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $ProjectRoot
 
 $Python = ".\.venv\Scripts\python.exe"
-$FFmpeg = ".\src\ymd_gui\resources\ffmpeg\windows\ffmpeg.exe"
+$FFmpegDir = ".\src\ymd_gui\resources\ffmpeg\windows"
+$FFmpeg = Join-Path $FFmpegDir "ffmpeg.exe"
 $Icon = ".\src\ymd_gui\resources\icons\app.ico"
 
 $BuildRoot = ".\build\windows"
@@ -149,6 +150,13 @@ Copy-Item `
     (Join-Path $FFmpegTarget "ffmpeg.exe") `
     -Force
 
+Get-ChildItem `
+    $FFmpegDir `
+    -Filter "*.dll" |
+    Copy-Item `
+        -Destination $FFmpegTarget `
+        -Force
+
 
 # ------------------------------------------------------------
 # Portable directory
@@ -178,6 +186,69 @@ New-Item `
 Copy-Item `
     (Join-Path $Dist.FullName "*") `
     $PortableDir `
+    -Recurse `
+    -Force
+
+
+# ------------------------------------------------------------
+# Release documentation
+# ------------------------------------------------------------
+
+Write-Host "Adding release documentation..."
+
+$PackagingRoot = ".\packaging\windows"
+
+$ReadmeTemplate = Join-Path `
+    $PackagingRoot `
+    "README.txt"
+
+$ThirdPartyNotices = Join-Path `
+    $PackagingRoot `
+    "THIRD_PARTY_NOTICES.txt"
+
+$Licenses = Join-Path `
+    $PackagingRoot `
+    "LICENSES"
+
+if (-not (Test-Path $ReadmeTemplate)) {
+    throw "Не найден release README.txt"
+}
+
+if (-not (Test-Path $ThirdPartyNotices)) {
+    throw "Не найден THIRD_PARTY_NOTICES.txt"
+}
+
+if (-not (Test-Path $Licenses)) {
+    throw "Не найден каталог LICENSES"
+}
+
+
+# Подставляем текущую версию
+$ReadmeContent = Get-Content `
+    $ReadmeTemplate `
+    -Raw `
+    -Encoding UTF8
+
+$ReadmeContent = $ReadmeContent.Replace(
+    "@VERSION@",
+    $Version
+)
+
+Set-Content `
+    (Join-Path $PortableDir "README.txt") `
+    $ReadmeContent `
+    -Encoding UTF8
+
+
+Copy-Item `
+    $ThirdPartyNotices `
+    (Join-Path $PortableDir "THIRD_PARTY_NOTICES.txt") `
+    -Force
+
+
+Copy-Item `
+    $Licenses `
+    (Join-Path $PortableDir "LICENSES") `
     -Recurse `
     -Force
 
