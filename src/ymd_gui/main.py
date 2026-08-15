@@ -1,6 +1,7 @@
 import logging
 import sys
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from ymd_gui import __version__
@@ -25,6 +26,7 @@ def main():
     app.setApplicationName(
         "Yandex Music Downloader GUI"
     )
+    app.setWindowIcon(QIcon(":/icons/app.ico"))
 
     logger.info(
         "Yandex Music Downloader GUI %s started",

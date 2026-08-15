@@ -84,6 +84,11 @@ def check_ffmpeg(
             stderr=subprocess.DEVNULL,
             timeout=5,
             check=False,
+            creationflags=(
+                subprocess.CREATE_NO_WINDOW
+                if os.name == "nt"
+                else 0
+            ),
         )
 
         return result.returncode == 0

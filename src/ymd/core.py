@@ -4,6 +4,7 @@
 
 import datetime as dt
 import hashlib
+import os
 import re
 import subprocess
 import time
@@ -685,7 +686,12 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
                   container: Container, mp3_bitrate: Optional[int], debug: bool) -> tuple[Path, Container, Path]:
     """Конвертирует файл с помощью ffmpeg."""
     try:
-        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True, timeout=10)
+        subprocess.run(["ffmpeg", "-version"],
+                       capture_output=True,
+                       check=True,
+                       timeout=10,
+                       creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+                       )
         debug_print(debug, f"ffmpeg найден, запускаем конвертацию")
         
         if convert_to == "flac":
@@ -704,6 +710,7 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
                 check=True,
                 capture_output=True,
                 timeout=180,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
             )
             output_tmp.replace(tmp_path)
             container = Container.FLAC
@@ -728,6 +735,7 @@ def _convert_file(tmp_path: Path, target_path: Path, convert_to: str,
                 check=True,
                 capture_output=True,
                 timeout=180,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
             )
             output_tmp.replace(tmp_path)
             container = Container.MP3

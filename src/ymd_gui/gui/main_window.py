@@ -2,6 +2,7 @@ from pathlib import Path
 
 from keyring.errors import KeyringError
 
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSettings, QThread, QTimer,  QUrl
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.ui = Ui_MainWindow()
+        self.setWindowIcon(QIcon(":/icons/app.ico"))
         self.ui.setupUi(self)
 
         self.statusBar().showMessage("Готово")
@@ -572,6 +574,7 @@ class MainWindow(QMainWindow):
 
     def open_oauth(self):
         dialog = OAuthDialog(self)
+        self.setWindowIcon(QIcon(":/icons/app.ico"))
 
         dialog.token_received.connect(
             self.oauth_token_received
@@ -740,6 +743,7 @@ class MainWindow(QMainWindow):
 
     def open_settings(self):
         SettingsDialog(self).exec()
+        self.setWindowIcon(QIcon(":/icons/app.ico"))
 
     def update_download_status(self, message: str):
         self.statusBar().showMessage(message)
