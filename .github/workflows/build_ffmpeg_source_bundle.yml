@@ -12,8 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ------------------------------------------------------
+      # Application repository
+      # ------------------------------------------------------
+
       - name: Checkout application repository
         uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # Exact BtbN build system used for our FFmpeg binary
+      # ------------------------------------------------------
 
       - name: Checkout exact BtbN FFmpeg-Builds revision
         uses: actions/checkout@v4
@@ -22,12 +31,98 @@ jobs:
           ref: 590a6612d7d961e9258429e501619e0b7d7cbedf
           path: _ffmpeg_builds
 
+
+      # ------------------------------------------------------
+      # Free runner disk space
+      # ------------------------------------------------------
+
+      - name: Free disk space
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          df -h
+
+          sudo apt-get clean
+          docker system prune -a -f || true
+
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/local/lib/android
+
+          df -h
+
+
+      # ------------------------------------------------------
+      # Docker
+      # ------------------------------------------------------
+
       - name: Verify Docker
         shell: bash
         run: |
           set -euo pipefail
+
           docker --version
           docker info >/dev/null
+
+
+      # ------------------------------------------------------
+      # Prepare the BtbN base image
+      #
+      # download.sh expects:
+      # ghcr.io/btbn/ffmpeg-builds/base:latest
+      #
+      # First try pulling it.
+      # If GHCR refuses access or the image is unavailable,
+      # build the exact base image locally from the checked-out
+      # BtbN revision.
+      # ------------------------------------------------------
+
+      - name: Prepare BtbN download image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd _ffmpeg_builds
+
+          BASE_IMAGE="ghcr.io/btbn/ffmpeg-builds/base:latest"
+
+          echo "Required image:"
+          echo "$BASE_IMAGE"
+          echo
+
+          if docker pull "$BASE_IMAGE"; then
+            echo "BtbN base image downloaded successfully."
+          else
+            echo "Could not pull BtbN base image."
+            echo "Building it locally from the exact BtbN revision..."
+
+            export DOCKER_BUILDKIT=1
+
+            docker build \
+              --tag "$BASE_IMAGE" \
+              images/base
+
+            echo "Local BtbN base image created."
+          fi
+
+          docker image inspect "$BASE_IMAGE" >/dev/null
+
+
+      # ------------------------------------------------------
+      # Dependency sources
+      #
+      # IMPORTANT:
+      #
+      # GitHub Actions injects GITHUB_REPOSITORY with the name
+      # of OUR repository. BtbN's util/vars.sh uses that value
+      # when choosing the Docker image.
+      #
+      # Removing it in this subshell makes BtbN use its built-in
+      # fallback:
+      #
+      # btbn/ffmpeg-builds
+      # ------------------------------------------------------
 
       - name: Download dependency sources
         shell: bash
@@ -38,21 +133,46 @@ jobs:
 
           chmod +x download.sh
 
-          ./download.sh
+          (
+            unset GITHUB_REPOSITORY
+
+            echo "Running BtbN download.sh..."
+            echo "GITHUB_REPOSITORY has been unset for this subprocess."
+            echo
+
+            ./download.sh
+          )
+
+          if [ ! -d ".cache/downloads" ]; then
+            echo "BtbN download cache was not created."
+            exit 1
+          fi
+
+          SOURCE_COUNT="$(
+            find .cache/downloads \
+              -type f \
+              -name '*.tar.xz' \
+              | wc -l
+          )"
 
           echo
-          echo "Downloaded source archives:"
+          echo "Downloaded source archives: $SOURCE_COUNT"
+          echo
+
           find .cache/downloads \
             -type f \
             -name '*.tar.xz' \
             | sort
 
-          echo
-          echo "Number of downloaded source archives:"
-          find .cache/downloads \
-            -type f \
-            -name '*.tar.xz' \
-            | wc -l
+          if [ "$SOURCE_COUNT" -eq 0 ]; then
+            echo "No dependency sources were downloaded."
+            exit 1
+          fi
+
+
+      # ------------------------------------------------------
+      # Exact FFmpeg source
+      # ------------------------------------------------------
 
       - name: Download exact FFmpeg source
         shell: bash
@@ -65,8 +185,20 @@ jobs:
             --fail \
             --location \
             --retry 3 \
+            --retry-delay 2 \
             "https://github.com/FFmpeg/FFmpeg/archive/852b0552f0.tar.gz" \
             --output "_ffmpeg_core_source/FFmpeg-852b0552f0.tar.gz"
+
+          test -s \
+            "_ffmpeg_core_source/FFmpeg-852b0552f0.tar.gz"
+
+          ls -lh \
+            "_ffmpeg_core_source/FFmpeg-852b0552f0.tar.gz"
+
+
+      # ------------------------------------------------------
+      # Create source bundle directory
+      # ------------------------------------------------------
 
       - name: Create source bundle
         shell: bash
@@ -82,6 +214,7 @@ jobs:
           mkdir -p "$BUNDLE_ROOT/build-scripts"
           mkdir -p "$BUNDLE_ROOT/licenses"
 
+
           # --------------------------------------------------
           # Exact FFmpeg source
           # --------------------------------------------------
@@ -90,12 +223,13 @@ jobs:
             "$GITHUB_WORKSPACE/_ffmpeg_core_source/FFmpeg-852b0552f0.tar.gz" \
             "$BUNDLE_ROOT/ffmpeg-source/"
 
+
           # --------------------------------------------------
-          # Sources downloaded by the exact BtbN build scripts
+          # Dependency sources
           #
-          # Only regular files are copied. BtbN also creates
-          # convenient symlinks without hashes; those would only
-          # duplicate the same source archives.
+          # Copy only real files. BtbN additionally creates
+          # symlinks without hashes; they point to the exact same
+          # source archives and would only create duplicates.
           # --------------------------------------------------
 
           find \
@@ -104,24 +238,36 @@ jobs:
             -name '*.tar.xz' \
             -exec cp {} "$BUNDLE_ROOT/dependency-sources/" \;
 
+
           # --------------------------------------------------
-          # Exact BtbN build system
+          # Exact BtbN build scripts
+          #
+          # Do not include Git metadata or downloaded cache.
           # --------------------------------------------------
 
-          rm -rf "$GITHUB_WORKSPACE/_ffmpeg_builds/.git"
-          rm -rf "$GITHUB_WORKSPACE/_ffmpeg_builds/.cache"
+          rm -rf \
+            "$GITHUB_WORKSPACE/_ffmpeg_builds/.git"
+
+          rm -rf \
+            "$GITHUB_WORKSPACE/_ffmpeg_builds/.cache"
 
           cp -a \
             "$GITHUB_WORKSPACE/_ffmpeg_builds" \
             "$BUNDLE_ROOT/build-scripts/FFmpeg-Builds-590a661"
 
+
           # --------------------------------------------------
-          # Source / license information from our repository
+          # Our source identification
           # --------------------------------------------------
 
           cp \
             "$GITHUB_WORKSPACE/third_party_sources/ffmpeg/SOURCE_INFO.txt" \
             "$BUNDLE_ROOT/SOURCE_INFO.txt"
+
+
+          # --------------------------------------------------
+          # Notices and licenses
+          # --------------------------------------------------
 
           cp \
             "$GITHUB_WORKSPACE/packaging/windows/THIRD_PARTY_NOTICES.txt" \
@@ -131,8 +277,9 @@ jobs:
             "$GITHUB_WORKSPACE/packaging/windows/LICENSES/." \
             "$BUNDLE_ROOT/licenses/"
 
+
           # --------------------------------------------------
-          # Explanation
+          # Source bundle README
           # --------------------------------------------------
 
           cat > "$BUNDLE_ROOT/README-SOURCES.txt" <<'EOF'
@@ -148,6 +295,9 @@ jobs:
           BtbN release:
           Auto-Build 2026-08-14 13:16
 
+          BtbN release tag:
+          autobuild-2026-08-14-13-16
+
           BtbN build scripts revision:
           590a6612d7d961e9258429e501619e0b7d7cbedf
 
@@ -160,34 +310,61 @@ jobs:
           FFmpeg source revision:
           852b0552f0
 
-          This bundle contains:
+          License:
+          GNU Lesser General Public License version 3.0 (LGPLv3)
 
-          - the exact FFmpeg source archive for commit 852b0552f0;
-          - the exact BtbN/FFmpeg-Builds build scripts;
-          - source archives downloaded by BtbN download.sh;
-          - the patches and build configuration used by BtbN;
-          - applicable license and notice files;
-          - SOURCE_INFO.txt;
-          - SHA256SUMS.txt.
+
+          Contents
+          --------
+
+          ffmpeg-source/
+              Exact FFmpeg source archive corresponding to the
+              distributed FFmpeg revision.
+
+          dependency-sources/
+              Source archives downloaded by the exact BtbN download
+              scripts.
+
+          build-scripts/
+              Exact BtbN/FFmpeg-Builds revision used by the build,
+              including scripts, patches and variants.
+
+          licenses/
+              License texts distributed with the application.
+
+          SOURCE_INFO.txt
+              Exact build and source identification.
+
+          THIRD_PARTY_NOTICES.txt
+              Third-party software notices.
+
+          SHA256SUMS.txt
+              SHA-256 hashes for files contained in this bundle.
+
+
+          Dependency source scope
+          -----------------------
 
           dependency-sources/ intentionally contains a conservative
-          superset of dependency sources.
+          superset of source archives.
 
-          BtbN download.sh processes the package source definitions in
-          scripts.d. Therefore some source archives in this directory may
-          correspond to optional components which were not enabled in the
-          distributed win64-lgpl-shared-8.1 build.
+          BtbN download.sh processes the package definitions contained
+          in scripts.d. Some downloaded source archives may therefore
+          belong to optional components that were not enabled in the
+          distributed win64-lgpl-shared-8.1 binary.
 
-          They are retained deliberately so that the source bundle does not
-          accidentally omit source material referenced by the exact BtbN
-          build system revision used for this distribution.
+          These additional sources are deliberately retained so that
+          source material referenced by the exact BtbN build system is
+          not accidentally omitted.
           EOF
 
-          # Remove indentation introduced by YAML block.
-          sed -i 's/^          //' "$BUNDLE_ROOT/README-SOURCES.txt"
+          sed -i \
+            's/^          //' \
+            "$BUNDLE_ROOT/README-SOURCES.txt"
+
 
           # --------------------------------------------------
-          # Hash manifest
+          # SHA-256 manifest
           # --------------------------------------------------
 
           (
@@ -202,10 +379,36 @@ jobs:
               > SHA256SUMS.txt
           )
 
+
+          # --------------------------------------------------
+          # Diagnostics
+          # --------------------------------------------------
+
           echo
-          echo "Bundle contents:"
+          echo "Source bundle size:"
           du -sh "$BUNDLE_ROOT"
-          find "$BUNDLE_ROOT" -maxdepth 2 -type d | sort
+
+          echo
+          echo "Source bundle directories:"
+          find "$BUNDLE_ROOT" \
+            -maxdepth 2 \
+            -type d \
+            | sort
+
+          echo
+          echo "Dependency source count:"
+          find "$BUNDLE_ROOT/dependency-sources" \
+            -type f \
+            | wc -l
+
+
+      # ------------------------------------------------------
+      # ZIP
+      #
+      # Most source archives are already compressed .tar.xz,
+      # so storing them without another expensive compression
+      # pass is considerably faster.
+      # ------------------------------------------------------
 
       - name: Create source ZIP
         shell: bash
@@ -214,19 +417,29 @@ jobs:
 
           cd "$GITHUB_WORKSPACE/_source_bundle"
 
-          # Most dependency files are already compressed .tar.xz files,
-          # therefore additional ZIP compression gives little benefit.
           zip \
             -0 \
             -r \
             "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip" \
             "FFmpeg-BtbN-20260814-Sources"
 
+          test -s \
+            "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip"
+
+          echo
+          echo "Source ZIP:"
+          ls -lh \
+            "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip"
+
+          echo
+          echo "SHA-256:"
           sha256sum \
             "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip"
 
-          ls -lh \
-            "$GITHUB_WORKSPACE/FFmpeg-BtbN-20260814-Sources.zip"
+
+      # ------------------------------------------------------
+      # GitHub Actions artifact
+      # ------------------------------------------------------
 
       - name: Upload source bundle
         uses: actions/upload-artifact@v4

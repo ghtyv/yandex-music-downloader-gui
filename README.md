@@ -389,7 +389,7 @@ yandex-music-downloader-gui/
 - [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds)
 - Qt
 - PySide6
-- yandex-music
+- [MarshalX/yandex-music-api](https://github.com/MarshalX/yandex-music-api) (`yandex-music`) — неофициальная Python-библиотека для работы с API Яндекс Музыки
 - Nuitka
 
 Информация о лицензиях компонентов, включённых в готовую Windows-сборку, находится в:

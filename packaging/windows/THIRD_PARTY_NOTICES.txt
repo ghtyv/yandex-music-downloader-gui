@@ -89,6 +89,29 @@ LICENSES/Qt-LGPL-3.0.txt
 
 
 ============================================================
+yandex-music-api
+============================================================
+
+Project:
+MarshalX/yandex-music-api
+
+Python package:
+yandex-music
+
+Version:
+3.0.0
+
+Description:
+Unofficial Python library for working with the Yandex Music API.
+
+License:
+GNU Lesser General Public License version 3.0 (LGPLv3)
+
+The full license text is included in:
+LICENSES/yandex-music-api-LGPL-3.0.txt
+
+
+============================================================
 Disclaimer
 ============================================================
 
