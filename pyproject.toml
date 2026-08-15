@@ -7,6 +7,7 @@ name = "yandex-music-downloader-gui"
 dynamic = ["version"]
 description = "GUI for downloading music from Yandex Music"
 requires-python = ">=3.13"
+license = "MIT"
 
 dependencies = [
     "PySide6==6.11.1",
@@ -16,6 +17,11 @@ dependencies = [
     "pycryptodome",
     "requests>=2.31.0",
     "keyring>=25",
+]
+
+license-files = [
+    "LICENSE",
+    "src/ymd/LICENSE",
 ]
 
 [project.scripts]

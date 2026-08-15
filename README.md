@@ -407,6 +407,17 @@ LICENSES/
 
 OAuth-токен в debug-лог не записывается.
 
+## Лицензия
+
+Yandex Music Downloader GUI распространяется по лицензии [MIT](LICENSE).
+
+Части backend основаны на проекте
+[llistochek/yandex-music-downloader](https://github.com/llistochek/yandex-music-downloader)
+и распространяются в соответствии с его MIT License.
+
+Другие сторонние компоненты распространяются под своими лицензиями.
+Подробности находятся в `THIRD_PARTY_NOTICES.txt`.
+
 ## Дисклеймер
 
 Yandex Music Downloader GUI является независимым проектом и не связан с компанией Яндекс.
