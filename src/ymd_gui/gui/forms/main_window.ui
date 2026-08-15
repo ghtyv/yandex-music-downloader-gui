@@ -433,6 +433,58 @@ QStatusBar {
 
 QStatusBar::item {
     border: none;
+}
+
+QMenuBar {
+    background-color: #1b1b1b;
+    color: #f2f2f2;
+    border: none;
+    padding: 2px;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    color: #f2f2f2;
+    padding: 5px 10px;
+    margin: 0px;
+}
+
+QMenuBar::item:selected {
+    background-color: #353535;
+    color: #ffcc00;
+}
+
+QMenuBar::item:pressed {
+    background-color: #252525;
+    color: #ffcc00;
+}
+
+QMenu {
+    background-color: #1b1b1b;
+    color: #f2f2f2;
+    border: 1px solid #454545;
+    padding: 4px;
+}
+
+QMenu::item {
+    background-color: transparent;
+    color: #f2f2f2;
+    padding: 7px 28px 7px 12px;
+}
+
+QMenu::item:selected {
+    background-color: #353535;
+    color: #ffcc00;
+}
+
+QMenu::item:disabled {
+    color: #707070;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #454545;
+    margin: 4px 8px;
 }</string>
   </property>
   <widget class="AnimatedBackground" name="centralwidget">
@@ -923,7 +975,7 @@ QStatusBar::item {
      <x>0</x>
      <y>0</y>
      <width>715</width>
-     <height>22</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">

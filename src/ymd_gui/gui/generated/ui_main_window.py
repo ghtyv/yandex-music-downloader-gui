@@ -454,6 +454,59 @@ class Ui_MainWindow(object):
 "\n"
 "QStatusBar::item {\n"
 "    border: none;\n"
+"}\n"
+"\n"
+"QMenuBar {\n"
+"    background-color: #1b1b1b;\n"
+"    color: #f2f2f2;\n"
+"    border: none;\n"
+"    padding: 2px;\n"
+"}\n"
+"\n"
+"QMenuBar::item {\n"
+"    background-color: transparent;\n"
+"    color: #f2f2f2;\n"
+"    padding: 5px 10px;\n"
+"    margin: 0px;\n"
+"}\n"
+"\n"
+"QMenuBar::item:selected {\n"
+"    background-color: #353535;\n"
+"    color: #ffcc00;\n"
+"}\n"
+"\n"
+"QMenuBar::item:pressed {\n"
+"    background-color: #252525;\n"
+"    color: #ffcc00;\n"
+"}\n"
+"\n"
+"QMenu {\n"
+"    background-color: #1b1b1b;\n"
+"    color: #f2f2f2;\n"
+"    border: 1px solid #454545;\n"
+"    padding"
+                        ": 4px;\n"
+"}\n"
+"\n"
+"QMenu::item {\n"
+"    background-color: transparent;\n"
+"    color: #f2f2f2;\n"
+"    padding: 7px 28px 7px 12px;\n"
+"}\n"
+"\n"
+"QMenu::item:selected {\n"
+"    background-color: #353535;\n"
+"    color: #ffcc00;\n"
+"}\n"
+"\n"
+"QMenu::item:disabled {\n"
+"    color: #707070;\n"
+"}\n"
+"\n"
+"QMenu::separator {\n"
+"    height: 1px;\n"
+"    background-color: #454545;\n"
+"    margin: 4px 8px;\n"
 "}")
         self.actionAbout = QAction(MainWindow)
         self.actionAbout.setObjectName(u"actionAbout")
@@ -711,7 +764,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 715, 22))
+        self.menubar.setGeometry(QRect(0, 0, 715, 31))
         font5 = QFont()
         font5.setPointSize(9)
         self.menubar.setFont(font5)
