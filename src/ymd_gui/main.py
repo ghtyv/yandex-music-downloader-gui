@@ -3,6 +3,8 @@ import sys
 
 from PySide6.QtWidgets import QApplication, QMessageBox
 
+from ymd_gui import __version__
+
 from ymd_gui.core.ffmpeg_runtime import (
     check_ffmpeg,
     configure_ffmpeg,
@@ -18,9 +20,15 @@ logger = logging.getLogger(__name__)
 def main():
     app = QApplication(sys.argv)
 
+    app.setApplicationVersion(__version__)
     app.setOrganizationName("YMD GUI")
     app.setApplicationName(
         "Yandex Music Downloader GUI"
+    )
+
+    logger.info(
+        "Yandex Music Downloader GUI %s started",
+        __version__,
     )
 
     configure_logging()

@@ -1,39 +1,67 @@
+from __future__ import annotations
+
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
-def configure_ffmpeg() -> Path | None:
-    package_root = Path(__file__).resolve().parents[1]
+def _ffmpeg_candidates() -> list[Path]:
+    executable_dir = (
+        Path(sys.executable)
+        .resolve()
+        .parent
+    )
+
+    package_root = (
+        Path(__file__)
+        .resolve()
+        .parents[1]
+    )
 
     if os.name == "nt":
-        bundled_dir = (
+        return [
+            executable_dir
+            / "resources"
+            / "ffmpeg"
+            / "windows"
+            / "ffmpeg.exe",
+
             package_root
             / "resources"
             / "ffmpeg"
             / "windows"
-        )
+            / "ffmpeg.exe",
+        ]
 
-        executable = bundled_dir / "ffmpeg.exe"
-    else:
-        bundled_dir = (
-            package_root
-            / "resources"
-            / "ffmpeg"
-            / "linux"
-        )
+    return [
+        executable_dir
+        / "resources"
+        / "ffmpeg"
+        / "linux"
+        / "ffmpeg",
 
-        executable = bundled_dir / "ffmpeg"
+        package_root
+        / "resources"
+        / "ffmpeg"
+        / "linux"
+        / "ffmpeg",
+    ]
 
-    if executable.is_file():
-        os.environ["PATH"] = (
-            str(bundled_dir)
-            + os.pathsep
-            + os.environ.get("PATH", "")
-        )
 
-        return executable
+def configure_ffmpeg() -> Path | None:
+    for executable in _ffmpeg_candidates():
+        if executable.is_file():
+            directory = executable.parent
+
+            os.environ["PATH"] = (
+                str(directory)
+                + os.pathsep
+                + os.environ.get("PATH", "")
+            )
+
+            return executable
 
     system_ffmpeg = shutil.which("ffmpeg")
 
@@ -42,7 +70,10 @@ def configure_ffmpeg() -> Path | None:
 
     return None
 
-def check_ffmpeg(ffmpeg_path: Path) -> bool:
+
+def check_ffmpeg(
+    ffmpeg_path: Path,
+) -> bool:
     try:
         result = subprocess.run(
             [

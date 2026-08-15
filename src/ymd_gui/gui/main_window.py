@@ -19,6 +19,8 @@ from ymd_gui.core.token_store import (
     save_token,
 )
 
+from ymd_gui.core.temp_cleanup import cleanup_temp_files
+
 from ymd_gui.gui.oauth_dialog import OAuthDialog
 from ymd_gui.gui.settings_dialog import (
     DEFAULT_PATTERN,
@@ -46,6 +48,8 @@ class MainWindow(QMainWindow):
 
         self.setup_quality()
         self.load_settings()
+
+        self.active_output_dir = None
 
         # Выбор папки
         self.ui.pushButtonFolder.clicked.connect(self.select_folder)
@@ -316,8 +320,21 @@ class MainWindow(QMainWindow):
     def download_thread_finished(self):
         self.set_download_running(False)
 
+        output_dir = self.active_output_dir
+
         self.download_worker = None
         self.download_thread = None
+        self.active_output_dir = None
+
+        if output_dir is not None:
+            removed_tmp = cleanup_temp_files(
+                output_dir
+            )
+
+            if removed_tmp:
+                self.ui.plainTextEditLog.appendPlainText(
+                    f"Удалено временных файлов: {removed_tmp}"
+                )
 
         if self.restart_after_auth:
             QTimer.singleShot(
@@ -475,6 +492,17 @@ class MainWindow(QMainWindow):
         self.ui.progressBarDownload.setFormat(
             "Подготовка..."
         )
+
+        removed_tmp = cleanup_temp_files(
+            config.output_dir
+        )
+
+        if removed_tmp:
+            self.ui.plainTextEditLog.appendPlainText(
+                f"Удалено временных файлов: {removed_tmp}"
+            )
+
+        self.active_output_dir = config.output_dir
 
         self.set_download_running(True)
 
