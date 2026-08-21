@@ -13,7 +13,12 @@ from PySide6.QtWidgets import (
 
 from ymd_gui import __version__
 
-from ymd_gui.core.downloader import DownloadConfig
+from ymd_gui.core.downloader import (
+    DEFAULT_PARALLEL_DOWNLOADS,
+    MAX_PARALLEL_DOWNLOADS,
+    MIN_PARALLEL_DOWNLOADS,
+    DownloadConfig,
+)
 from ymd_gui.core.worker import DownloadWorker
 
 from ymd_gui.core.token_store import (
@@ -462,6 +467,20 @@ class MainWindow(QMainWindow):
             )
         )
 
+        parallel_downloads = max(
+            MIN_PARALLEL_DOWNLOADS,
+            min(
+                MAX_PARALLEL_DOWNLOADS,
+                int(
+                    settings.value(
+                        "download/parallel_downloads",
+                        DEFAULT_PARALLEL_DOWNLOADS,
+                        type=int,
+                    )
+                ),
+            ),
+        )
+
         config = DownloadConfig(
             token=token,
             url=self.ui.lineEditURL.text().strip(),
@@ -474,6 +493,7 @@ class MainWindow(QMainWindow):
             embed_cover=embed_cover,
             cover_resolution=cover_resolution,
             path_pattern=Path(pattern),
+            parallel_downloads=parallel_downloads,
 
             debug=False
         )

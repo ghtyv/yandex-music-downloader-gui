@@ -315,17 +315,36 @@ class Ui_SettingsDialog(object):
 
         self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.lineEditPathPattern)
 
+        self.labelParallelDownloads = QLabel(SettingsDialog)
+        self.labelParallelDownloads.setObjectName(u"labelParallelDownloads")
+        sizePolicy1.setHeightForWidth(self.labelParallelDownloads.sizePolicy().hasHeightForWidth())
+        self.labelParallelDownloads.setSizePolicy(sizePolicy1)
+        self.labelParallelDownloads.setFont(font)
+
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.labelParallelDownloads)
+
+        self.spinBoxParallelDownloads = QSpinBox(SettingsDialog)
+        self.spinBoxParallelDownloads.setObjectName(u"spinBoxParallelDownloads")
+        sizePolicy3.setHeightForWidth(self.spinBoxParallelDownloads.sizePolicy().hasHeightForWidth())
+        self.spinBoxParallelDownloads.setSizePolicy(sizePolicy3)
+        self.spinBoxParallelDownloads.setFont(font)
+        self.spinBoxParallelDownloads.setMinimum(1)
+        self.spinBoxParallelDownloads.setMaximum(8)
+        self.spinBoxParallelDownloads.setValue(3)
+
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.spinBoxParallelDownloads)
+
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.formLayout.setItem(4, QFormLayout.ItemRole.LabelRole, self.verticalSpacer)
+        self.formLayout.setItem(5, QFormLayout.ItemRole.LabelRole, self.verticalSpacer)
 
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.formLayout.setItem(5, QFormLayout.ItemRole.LabelRole, self.verticalSpacer_2)
+        self.formLayout.setItem(6, QFormLayout.ItemRole.LabelRole, self.verticalSpacer_2)
 
         self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
 
-        self.formLayout.setItem(6, QFormLayout.ItemRole.LabelRole, self.verticalSpacer_3)
+        self.formLayout.setItem(7, QFormLayout.ItemRole.LabelRole, self.verticalSpacer_3)
 
         self.buttonBox = QDialogButtonBox(SettingsDialog)
         self.buttonBox.setObjectName(u"buttonBox")
@@ -341,7 +360,7 @@ class Ui_SettingsDialog(object):
         self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
         self.buttonBox.setCenterButtons(False)
 
-        self.formLayout.setWidget(6, QFormLayout.ItemRole.FieldRole, self.buttonBox)
+        self.formLayout.setWidget(7, QFormLayout.ItemRole.FieldRole, self.buttonBox)
 
 
         self.formLayout_2.setLayout(0, QFormLayout.ItemRole.SpanningRole, self.formLayout)
@@ -368,5 +387,6 @@ class Ui_SettingsDialog(object):
         self.lineEditPathPattern.setToolTip(QCoreApplication.translate("SettingsDialog", u"<html><head/><body><p>#number-padded</p><p>#album-artist</p><p>#track-artist</p><p>#artist-id</p><p>#album-id</p><p>#track-id</p><p>#number</p><p>#title</p><p>#album</p><p>#year</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.lineEditPathPattern.setText(QCoreApplication.translate("SettingsDialog", u"#album-artist - #title #track-id", None))
+        self.labelParallelDownloads.setText(QCoreApplication.translate("SettingsDialog", u"\u041f\u0430\u0440\u0430\u043b\u043b\u0435\u043b\u044c\u043d\u044b\u0435 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438", None))
     # retranslateUi
 

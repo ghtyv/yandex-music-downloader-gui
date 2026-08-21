@@ -4,6 +4,10 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
+from ymd_gui.core.downloader import (
+    DEFAULT_PARALLEL_DOWNLOADS,
+)
+
 from .generated.ui_settings_dialog import Ui_SettingsDialog
 
 
@@ -87,6 +91,14 @@ class SettingsDialog(QDialog):
             )
         )
 
+        self.ui.spinBoxParallelDownloads.setValue(
+            self.settings.value(
+                "download/parallel_downloads",
+                DEFAULT_PARALLEL_DOWNLOADS,
+                type=int,
+            )
+        )
+
     def save_and_accept(self):
         pattern = (
             self.ui.lineEditPathPattern
@@ -115,6 +127,11 @@ class SettingsDialog(QDialog):
         self.settings.setValue(
             "download/path_pattern",
             pattern,
+        )
+
+        self.settings.setValue(
+            "download/parallel_downloads",
+            self.ui.spinBoxParallelDownloads.value(),
         )
 
         self.accept()

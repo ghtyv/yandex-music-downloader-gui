@@ -28,7 +28,7 @@ class DownloadWorker(QObject):
     finished = Signal(object)
 
     # короткое сообщение, полный traceback
-    failed = Signal(str, str)
+    failed = Signal(str)
 
     def __init__(self, config: DownloadConfig):
         super().__init__()
