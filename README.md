@@ -329,9 +329,13 @@ FFmpeg-BtbN-20260814-Sources.zip
 
 ```text
 yandex-music-downloader-gui/
+├── .editorconfig
 ├── .github/
 │   └── workflows/
 │       └── build_ffmpeg_source_bundle.yml
+├── .gitattributes
+├── .gitignore
+├── LICENSE
 │
 ├── assets/
 │   └── icon.png
@@ -343,41 +347,48 @@ yandex-music-downloader-gui/
 │       └── THIRD_PARTY_NOTICES.txt
 │
 ├── scripts/
-│   └── build_windows.ps1
+│   ├── build_windows.ps1
+│   └── make_icon.py
+│
+├── src/
+│   ├── ymd/
+│   │   ├── LICENSE
+│   │   └── backend yandex-music-downloader
+│   │
+│   ├── ymd_gui/
+│   │   ├── core/
+│   │   │   ├── downloader.py
+│   │   │   ├── ffmpeg_runtime.py
+│   │   │   ├── logging_setup.py
+│   │   │   ├── temp_cleanup.py
+│   │   │   ├── token_store.py
+│   │   │   └── worker.py
+│   │   │
+│   │   ├── gui/
+│   │   │   ├── forms/
+│   │   │   │   ├── main_window.ui
+│   │   │   │   └── settings_dialog.ui
+│   │   │   ├── generated/
+│   │   │   │   ├── resources_rc.py
+│   │   │   │   ├── ui_main_window.py
+│   │   │   │   └── ui_settings_dialog.py
+│   │   │   ├── widgets/
+│   │   │   │   └── animated_background.py
+│   │   │   ├── main_window.py
+│   │   │   ├── oauth_dialog.py
+│   │   │   └── settings_dialog.py
+│   │   │
+│   │   ├── resources/
+│   │   ├── __init__.py
+│   │   └── main.py
 │
 ├── third_party_sources/
 │   └── ffmpeg/
 │       └── SOURCE_INFO.txt
 │
-├── src/
-│   ├── ymd/
-│   │   └── backend yandex-music-downloader
-│   │
-│   └── ymd_gui/
-│       ├── core/
-│       │   ├── downloader.py
-│       │   ├── worker.py
-│       │   ├── token_store.py
-│       │   ├── ffmpeg_runtime.py
-│       │   ├── logging_setup.py
-│       │   └── temp_cleanup.py
-│       │
-│       ├── gui/
-│       │   ├── forms/
-│       │   ├── generated/
-│       │   ├── widgets/
-│       │   ├── main_window.py
-│       │   ├── settings_dialog.py
-│       │   └── oauth_dialog.py
-│       │
-│       ├── resources/
-│       ├── __init__.py
-│       └── main.py
-│
-├── .gitignore
 ├── pyproject.toml
-├── requirements.txt
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ## Сторонние проекты
