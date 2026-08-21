@@ -206,9 +206,9 @@ $ThirdPartyNotices = Join-Path `
     $PackagingRoot `
     "THIRD_PARTY_NOTICES.txt"
 
-$Licenses = Join-Path `
+$ThirdPartyLicenses = Join-Path `
     $PackagingRoot `
-    "LICENSES"
+    "THIRD_PARTY_LICENSES.txt"
 
 if (-not (Test-Path $ReadmeTemplate)) {
     throw "Не найден release README.txt"
@@ -218,8 +218,8 @@ if (-not (Test-Path $ThirdPartyNotices)) {
     throw "Не найден THIRD_PARTY_NOTICES.txt"
 }
 
-if (-not (Test-Path $Licenses)) {
-    throw "Не найден каталог LICENSES"
+if (-not (Test-Path $ThirdPartyLicenses)) {
+    throw "Не найден THIRD_PARTY_LICENSES.txt"
 }
 
 
@@ -241,15 +241,20 @@ Set-Content `
 
 
 Copy-Item `
-    $ThirdPartyNotices `
-    (Join-Path $PortableDir "THIRD_PARTY_NOTICES.txt") `
+    ".\LICENSE" `
+    (Join-Path $PortableDir "LICENSE") `
     -Force
 
 
 Copy-Item `
-    $Licenses `
-    (Join-Path $PortableDir "LICENSES") `
-    -Recurse `
+    $ThirdPartyLicenses `
+    (Join-Path $PortableDir "THIRD_PARTY_LICENSES.txt") `
+    -Force
+
+
+Copy-Item `
+    $ThirdPartyNotices `
+    (Join-Path $PortableDir "THIRD_PARTY_NOTICES.txt") `
     -Force
 
 

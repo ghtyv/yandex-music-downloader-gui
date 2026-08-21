@@ -212,7 +212,6 @@ jobs:
           mkdir -p "$BUNDLE_ROOT/ffmpeg-source"
           mkdir -p "$BUNDLE_ROOT/dependency-sources"
           mkdir -p "$BUNDLE_ROOT/build-scripts"
-          mkdir -p "$BUNDLE_ROOT/licenses"
 
 
           # --------------------------------------------------
@@ -270,12 +269,16 @@ jobs:
           # --------------------------------------------------
 
           cp \
+            "$GITHUB_WORKSPACE/LICENSE" \
+            "$BUNDLE_ROOT/LICENSE"
+
+          cp \
             "$GITHUB_WORKSPACE/packaging/windows/THIRD_PARTY_NOTICES.txt" \
             "$BUNDLE_ROOT/THIRD_PARTY_NOTICES.txt"
 
-          cp -a \
-            "$GITHUB_WORKSPACE/packaging/windows/LICENSES/." \
-            "$BUNDLE_ROOT/licenses/"
+          cp \
+            "$GITHUB_WORKSPACE/packaging/windows/THIRD_PARTY_LICENSES.txt" \
+            "$BUNDLE_ROOT/THIRD_PARTY_LICENSES.txt"
 
 
           # --------------------------------------------------
@@ -329,8 +332,12 @@ jobs:
               Exact BtbN/FFmpeg-Builds revision used by the build,
               including scripts, patches and variants.
 
-          licenses/
-              License texts distributed with the application.
+          LICENSE
+              Application license.
+
+          THIRD_PARTY_LICENSES.txt
+              Full third-party license texts distributed with the
+              application.
 
           SOURCE_INFO.txt
               Exact build and source identification.

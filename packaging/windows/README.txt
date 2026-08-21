@@ -58,8 +58,8 @@ OAuth-токен получается через встроенное окно �
 - FFmpeg
 - Qt / PySide6
 
-Дополнительная информация находится в файле
-THIRD_PARTY_NOTICES.txt и каталоге LICENSES.
+Дополнительная информация находится в файлах
+THIRD_PARTY_NOTICES.txt и THIRD_PARTY_LICENSES.txt
 
 ДИСКЛЕЙМЕР
 

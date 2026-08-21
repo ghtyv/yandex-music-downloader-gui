@@ -1,34 +1,42 @@
 Yandex Music Downloader GUI
 Third-Party Software Notices
 
+For full third-party license texts, see:
+THIRD_PARTY_LICENSES.txt
+
+
 ============================================================
 yandex-music-downloader
 ============================================================
 
-Project:
+Provider:
 llistochek/yandex-music-downloader
 
-Parts of the downloader backend are based on and derived from
-yandex-music-downloader.
+Role:
+Backend codebase used as the basis for parts of the downloader
+backend
 
 License:
 MIT License
 
-The full license text is included in:
-LICENSES/yandex-music-downloader-MIT.txt
+Project:
+https://github.com/llistochek/yandex-music-downloader
+
+Source:
+https://github.com/llistochek/yandex-music-downloader
+
+Full license text:
+THIRD_PARTY_LICENSES.txt
 
 
 ============================================================
 FFmpeg
 ============================================================
 
-This distribution contains FFmpeg, used as a separate executable
-for audio processing and conversion.
-
-Build provider:
+Provider:
 BtbN / FFmpeg-Builds
 
-Build variant:
+Variant:
 win64-lgpl-shared-8.1
 
 FFmpeg version:
@@ -37,62 +45,73 @@ n8.1.2-40-g852b0552f0-20260814
 FFmpeg source commit:
 852b0552f0
 
-BtbN FFmpeg-Builds commit:
-590a661
-
 License:
 GNU Lesser General Public License version 3.0 (LGPLv3)
 
-This build uses shared FFmpeg libraries and was built with
---enable-version3, --enable-shared and --disable-static.
-GPL-only and non-free FFmpeg build options are not enabled.
+Project:
+https://ffmpeg.org/
 
-The LGPLv3 license text is included in:
-LICENSES/FFmpeg-LGPL-3.0.txt
+Source:
+https://github.com/FFmpeg/FFmpeg
 
-The GNU GPLv3 text referenced by LGPLv3 is included in:
-LICENSES/GNU-GPL-3.0.txt
-
-Additional FFmpeg licensing information is included in:
-LICENSES/FFmpeg-LICENSE.md
+Full license text:
+THIRD_PARTY_LICENSES.txt
 
 
 ============================================================
 BtbN / FFmpeg-Builds
 ============================================================
 
-The FFmpeg Windows binaries included with this distribution were
-produced using BtbN/FFmpeg-Builds.
+Provider:
+BtbN / FFmpeg-Builds
 
 Build scripts revision:
 590a661
 
+BtbN release:
+autobuild-2026-08-14-13-16
+
 License:
 MIT License
 
-The full license text is included in:
-LICENSES/BtbN-FFmpeg-Builds-MIT.txt
+Project:
+https://github.com/BtbN/FFmpeg-Builds
+
+Source:
+https://github.com/BtbN/FFmpeg-Builds
+
+Full license text:
+THIRD_PARTY_LICENSES.txt
 
 
 ============================================================
 Qt / PySide6
 ============================================================
 
-The graphical interface is built with Qt for Python / PySide6.
+Provider:
+Qt / PySide6
 
-Qt and Qt for Python Community Edition components are distributed
-under their applicable open-source licenses, including LGPLv3
-and/or GPLv3 depending on the component.
+Role:
+GUI framework used by the Windows application
 
-The LGPLv3 license text is included in:
-LICENSES/Qt-LGPL-3.0.txt
+License:
+GNU Lesser General Public License version 3.0 (LGPLv3)
+
+Project:
+https://www.qt.io/
+
+Source:
+https://code.qt.io/
+
+Full license text:
+THIRD_PARTY_LICENSES.txt
 
 
 ============================================================
 yandex-music-api
 ============================================================
 
-Project:
+Provider:
 MarshalX/yandex-music-api
 
 Python package:
@@ -101,14 +120,17 @@ yandex-music
 Version:
 3.0.0
 
-Description:
-Unofficial Python library for working with the Yandex Music API.
-
 License:
 GNU Lesser General Public License version 3.0 (LGPLv3)
 
-The full license text is included in:
-LICENSES/yandex-music-api-LGPL-3.0.txt
+Project:
+https://github.com/MarshalX/yandex-music-api
+
+Source:
+https://github.com/MarshalX/yandex-music-api
+
+Full license text:
+THIRD_PARTY_LICENSES.txt
 
 
 ============================================================

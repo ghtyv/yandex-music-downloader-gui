@@ -30,7 +30,7 @@
 - продолжение большой загрузки после повторной авторизации с пропуском уже скачанных файлов;
 - автоматическая очистка оставшихся временных файлов;
 - пользовательский журнал и отдельный технический debug-лог;
-- bundled FFmpeg в Windows-сборке;
+- встроенный FFmpeg в Windows-сборке;
 - Portable-сборка без необходимости отдельно устанавливать Python или FFmpeg.
 
 ## Windows
@@ -161,23 +161,23 @@ OAuth-авторизация выполняется во встроенном о
 
 Для обработки аудио используется [FFmpeg](https://ffmpeg.org/).
 
-Windows Portable-сборка использует LGPL shared build от [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds).
+В Windows-сборке используется LGPL-вариант с shared-библиотеками от [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds).
 
-Текущая bundled-сборка:
+Текущая встроенная сборка FFmpeg:
 
 ```text
 Provider: BtbN / FFmpeg-Builds
 Variant: win64-lgpl-shared-8.1
 FFmpeg: n8.1.2-40-g852b0552f0-20260814
 FFmpeg commit: 852b0552f0
-BtbN FFmpeg-Builds commit: 590a6612d7d961e9258429e501619e0b7d7cbedf
-BtbN release: autobuild-2026-08-14-13-16
+Коммит BtbN FFmpeg-Builds: 590a6612d7d961e9258429e501619e0b7d7cbedf
+Метка сборки BtbN: autobuild-2026-08-14-13-16
 License: LGPLv3
 ```
 
 FFmpeg и необходимые DLL уже включены в Windows Portable-сборку, поэтому пользователю не требуется устанавливать FFmpeg отдельно.
 
-Для релиза также предоставляется соответствующий source bundle:
+Для релиза также предоставляется соответствующий архив с исходниками:
 
 ```text
 FFmpeg-BtbN-20260814-Sources.zip
@@ -185,11 +185,11 @@ FFmpeg-BtbN-20260814-Sources.zip
 
 Он содержит:
 
-- исходный код FFmpeg для используемой revision;
+- исходный код FFmpeg для используемого коммита;
 - BtbN FFmpeg-Builds scripts;
-- patches и build configuration;
+- патчи и конфигурацию сборки;
 - исходные архивы внешних зависимостей;
-- license files;
+- тексты лицензий;
 - информацию о конкретной используемой сборке;
 - SHA-256 manifest.
 
@@ -197,7 +197,7 @@ FFmpeg-BtbN-20260814-Sources.zip
 
 ```text
 THIRD_PARTY_NOTICES.txt
-LICENSES/
+THIRD_PARTY_LICENSES.txt
 ```
 
 ## Сборка из исходников
@@ -224,22 +224,22 @@ py -3.13 -m venv .venv
 
 ## FFmpeg для разработки
 
-Bundled FFmpeg для локальной Windows-разработки находится в:
+Встроенный FFmpeg для локальной Windows-разработки находится в:
 
 ```text
 src/ymd_gui/resources/ffmpeg/windows/
 ```
 
-Для BtbN shared build в этой папке находятся:
+Для LGPL-варианта BtbN с shared-библиотеками в этой папке находятся:
 
 ```text
 ffmpeg.exe
 *.dll
 ```
 
-Сами FFmpeg binaries и DLL не хранятся в Git-репозитории.
+Сами бинарники FFmpeg и DLL не хранятся в Git-репозитории.
 
-Если bundled FFmpeg отсутствует, приложение может использовать системный FFmpeg, доступный через `PATH`.
+Если встроенный FFmpeg отсутствует, приложение может использовать системный FFmpeg, доступный через `PATH`.
 
 ## Qt Designer
 
@@ -281,7 +281,7 @@ src/ymd_gui/gui/generated/resources_rc.py
   -o .\src\ymd_gui\gui\generated\resources_rc.py
 ```
 
-## Windows build
+## Windows-сборка
 
 Для создания Portable Windows-сборки используется Nuitka.
 
@@ -309,9 +309,9 @@ dist/
 YandexMusicDownloader-0.1.0-Windows-x64.zip
 ```
 
-## FFmpeg source bundle
+## Архив исходников FFmpeg
 
-Source bundle для bundled FFmpeg формируется отдельным GitHub Actions workflow:
+Архив исходников для встроенного FFmpeg формируется отдельным GitHub Actions workflow:
 
 ```text
 .github/workflows/build_ffmpeg_source_bundle.yml
@@ -323,7 +323,7 @@ Workflow создаёт:
 FFmpeg-BtbN-20260814-Sources.zip
 ```
 
-Этот архив публикуется в том же Release, что и Windows Portable-сборка.
+Этот архив публикуется в том же релизе, что и Windows Portable-сборка.
 
 ## Структура проекта
 
@@ -338,8 +338,8 @@ yandex-music-downloader-gui/
 │
 ├── packaging/
 │   └── windows/
-│       ├── LICENSES/
 │       ├── README.txt
+│       ├── THIRD_PARTY_LICENSES.txt
 │       └── THIRD_PARTY_NOTICES.txt
 │
 ├── scripts/
@@ -387,16 +387,16 @@ yandex-music-downloader-gui/
 - [llistochek/yandex-music-downloader](https://github.com/llistochek/yandex-music-downloader)
 - [FFmpeg](https://ffmpeg.org/)
 - [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds)
-- Qt
-- PySide6
+- [Qt](https://www.qt.io/)
+- [PySide6](https://pyside.org/)
 - [MarshalX/yandex-music-api](https://github.com/MarshalX/yandex-music-api) (`yandex-music`) — неофициальная Python-библиотека для работы с API Яндекс Музыки
-- Nuitka
+- [Nuitka](https://nuitka.net/)
 
 Информация о лицензиях компонентов, включённых в готовую Windows-сборку, находится в:
 
 ```text
 THIRD_PARTY_NOTICES.txt
-LICENSES/
+THIRD_PARTY_LICENSES.txt
 ```
 
 ## Логи
@@ -411,12 +411,23 @@ OAuth-токен в debug-лог не записывается.
 
 Yandex Music Downloader GUI распространяется по лицензии [MIT](LICENSE).
 
-Части backend основаны на проекте
-[llistochek/yandex-music-downloader](https://github.com/llistochek/yandex-music-downloader)
-и распространяются в соответствии с его MIT License.
+Copyright (c) 2026 ghtyv.
 
-Другие сторонние компоненты распространяются под своими лицензиями.
-Подробности находятся в `THIRD_PARTY_NOTICES.txt`.
+### Сторонние компоненты
+
+Проект использует сторонние open-source компоненты, которые распространяются по собственным лицензиям:
+
+| Компонент | Лицензия |
+|---|---|
+| [llistochek/yandex-music-downloader](https://github.com/llistochek/yandex-music-downloader) | [MIT](https://github.com/llistochek/yandex-music-downloader/blob/main/LICENSE) |
+| [FFmpeg](https://ffmpeg.org/) | [LGPL](https://ffmpeg.org/legal.html) |
+| [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) | [MIT](https://github.com/BtbN/FFmpeg-Builds/blob/master/LICENSE) |
+| [Qt](https://www.qt.io/) | [LGPLv3 / GPLv3](https://www.qt.io/licensing/open-source-lgpl-obligations) |
+| [PySide6 / Qt for Python](https://doc.qt.io/qtforpython-6/) | [LGPLv3 / GPLv3](https://doc.qt.io/qtforpython-6/) |
+| [MarshalX/yandex-music-api](https://github.com/MarshalX/yandex-music-api) (`yandex-music`) | [LGPLv3](https://github.com/MarshalX/yandex-music-api/blob/main/LICENSE) |
+| [Nuitka](https://github.com/Nuitka/Nuitka) | [AGPLv3 + Runtime Exception](https://github.com/Nuitka/Nuitka/blob/develop/LICENSE-RUNTIME.txt) |
+
+Полные тексты применимых сторонних лицензий для распространяемой сборки находятся в `THIRD_PARTY_LICENSES.txt`.
 
 ## Дисклеймер
 
